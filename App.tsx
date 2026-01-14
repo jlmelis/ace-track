@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, StatLog } from './types.ts';
+import { RefreshCw, X } from 'lucide-react';
 
 // Components
 import Layout from './components/Layout.tsx';
@@ -21,6 +21,10 @@ const App: React.FC = () => {
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
   const [activeSetId, setActiveSetId] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  // PWA Update State
+  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
+  const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
 
   // App Data State
   const [data, setData] = useState<AppState>(() => {
@@ -36,6 +40,48 @@ const App: React.FC = () => {
       }
     };
   });
+
+  // Handle PWA Updates
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(reg => {
+        // Handle case where worker is already waiting (e.g. background update)
+        if (reg.waiting) {
+          setWaitingWorker(reg.waiting);
+          setShowUpdatePrompt(true);
+        }
+
+        // Listen for updates while the app is open
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                setWaitingWorker(newWorker);
+                setShowUpdatePrompt(true);
+              }
+            });
+          }
+        });
+      });
+
+      // Reload the page when the new service worker takes control
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
+  }, []);
+
+  const handleUpdate = () => {
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+      setShowUpdatePrompt(false);
+    }
+  };
 
   // Check for first visit
   useEffect(() => {
@@ -189,7 +235,6 @@ const App: React.FC = () => {
         return activeMatch && activeEvent ? (
           <MatchDetail 
             match={activeMatch}
-            /* Passed the required 'profile' prop to MatchDetail */
             profile={data.profile}
             onBack={() => setCurrentView('event')}
             onAddSet={() => addSet(activeEvent.id, activeMatch.id)}
@@ -228,6 +273,37 @@ const App: React.FC = () => {
     >
       {renderContent()}
       {showOnboarding && <OnboardingModal onDismiss={dismissOnboarding} />}
+
+      {/* Update Prompt Toast */}
+      {showUpdatePrompt && (
+        <div className="fixed bottom-20 left-4 right-4 z-[200] animate-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-indigo-600 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 border border-indigo-500">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-xl text-white animate-pulse">
+                <RefreshCw size={20} />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white leading-none">Update Available</h4>
+                <p className="text-[10px] text-indigo-100 mt-1 uppercase tracking-wider font-medium">New features are ready!</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+               <button 
+                onClick={handleUpdate}
+                className="bg-white text-indigo-600 text-xs font-black px-4 py-2 rounded-xl shadow-sm active:scale-95 transition-all uppercase tracking-widest"
+              >
+                Update Now
+              </button>
+              <button 
+                onClick={() => setShowUpdatePrompt(false)}
+                className="p-1 text-indigo-200 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

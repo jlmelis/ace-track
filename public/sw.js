@@ -1,4 +1,5 @@
-const CACHE_NAME = 'acetrack-v4';
+
+const CACHE_NAME = 'acetrack-v5'; // Bumped version
 const ASSETS = [
   '/',
   '/index.html',
@@ -6,6 +7,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  // We still skip waiting on install, but the message listener is more reliable for manual prompts
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -23,6 +25,13 @@ self.addEventListener('activate', (event) => {
     })
   );
   self.clients.claim();
+});
+
+// Listen for the message to skip waiting from the UI prompt
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', (event) => {
