@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { ArrowLeft, RotateCcw, CheckCircle2, Circle } from 'lucide-react';
 import { SetData, Match, PlayerProfile, DEFAULT_STATS, StatDefinition, StatCategory } from '../types.ts';
 
@@ -29,6 +29,20 @@ const SetTracker: React.FC<SetTrackerProps> = ({
   onUndo, 
   onToggleComplete 
 }) => {
+  const [toastVisible, setToastVisible] = useState(false);
+  const logCount = set.logs.length;
+
+  // Auto-hide the confirmation toast after 1.5 seconds
+  useEffect(() => {
+    if (logCount > 0) {
+      setToastVisible(true);
+      const timer = setTimeout(() => {
+        setToastVisible(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [logCount]);
+
   const enabledStats = useMemo(() => {
     return DEFAULT_STATS.filter(stat => profile.trackedStats.includes(stat.id));
   }, [profile.trackedStats]);
@@ -95,12 +109,12 @@ const SetTracker: React.FC<SetTrackerProps> = ({
           </div>
         </div>
 
-        {/* Alias Tabs - Fixed 1-row row to prevent scrolling */}
+        {/* Alias Tabs - Compact 1-row layout */}
         <div className="px-4 pb-3 flex justify-between gap-1">
           {categories.map((cat) => {
             const isActive = activeTab === cat;
             const theme = CATEGORY_THEMES[cat];
-            const alias = profile.categoryAliases[cat] || cat.slice(0, 2).toUpperCase();
+            const alias = profile.categoryAliases?.[cat] || cat.slice(0, 2).toUpperCase();
             
             return (
               <button
@@ -182,9 +196,12 @@ const SetTracker: React.FC<SetTrackerProps> = ({
         )}
       </div>
 
-      {/* Floating Confirmation Toast */}
-      {lastStatLabel && !set.isCompleted && (
-        <div key={set.logs.length} className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-6 py-3 rounded-full text-[10px] font-black shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-none uppercase tracking-[0.2em] border border-white/10 z-[60]">
+      {/* Floating Confirmation Toast - Now with auto-hide logic */}
+      {toastVisible && lastStatLabel && !set.isCompleted && (
+        <div 
+          key={set.logs.length} 
+          className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-6 py-3 rounded-full text-[10px] font-black shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-none uppercase tracking-[0.2em] border border-white/10 z-[60]"
+        >
           +1 {lastStatLabel}
         </div>
       )}
