@@ -1,17 +1,16 @@
-
 import React from 'react';
 import { ArrowLeft, Plus, ChevronRight, Download } from 'lucide-react';
-import { Match, DEFAULT_STATS } from '../types';
+import { Match, PlayerProfile, DEFAULT_STATS } from '../types.ts';
 
 interface MatchDetailProps {
   match: Match;
+  profile: PlayerProfile;
   onBack: () => void;
   onAddSet: () => void;
   onSelectSet: (id: string) => void;
 }
 
-const MatchDetail: React.FC<MatchDetailProps> = ({ match, onBack, onAddSet, onSelectSet }) => {
-  
+const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAddSet, onSelectSet }) => {
   const getTotals = () => {
     const totals: Record<string, number> = {};
     match.sets.forEach(set => {
@@ -24,7 +23,6 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, onBack, onAddSet, onSe
 
   const totals = getTotals();
 
-  // Advanced calculations for recruiters/coaches
   const kills = totals['kill'] || 0;
   const attackErrors = totals['attack_err'] || 0;
   const attackAttempts = (totals['attack_attempt'] || 0) + (totals['attack_roll'] || 0) + (totals['attack_tip'] || 0);
@@ -33,7 +31,6 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, onBack, onAddSet, onSe
 
   const handleExport = () => {
     const sanitize = (val: string) => `"${val.replace(/"/g, '""')}"`;
-    
     const headers = ['Set', 'Category', 'Metric', 'Timestamp'];
     const rows = match.sets.flatMap(set => 
       set.logs.map(log => {
@@ -53,14 +50,11 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, onBack, onAddSet, onSe
     const link = document.createElement('a');
     link.setAttribute('href', url);
     link.setAttribute('download', `AceTrack_vs_${match.opponent.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
   };
 
   return (
-    <div className="animate-in slide-in-from-right-4 duration-200">
+    <div className="animate-in slide-in-from-right-4 duration-200 pb-24">
       <div className="bg-white p-4 border-b flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full">
@@ -71,13 +65,14 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, onBack, onAddSet, onSe
             <p className="text-xs text-slate-500">{match.date}</p>
           </div>
         </div>
-        <button 
-          onClick={handleExport}
-          className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs bg-emerald-50 px-3 py-2 rounded-lg active:scale-95 transition-transform"
-        >
-          <Download size={16} />
-          Export
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={handleExport}
+            className="p-2 bg-emerald-50 text-emerald-600 rounded-lg active:scale-95 transition-transform"
+          >
+            <Download size={20} />
+          </button>
+        </div>
       </div>
 
       <div className="p-4 space-y-6">
@@ -149,13 +144,7 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, onBack, onAddSet, onSe
   );
 };
 
-interface SummaryStatBoxProps {
-  label: string;
-  value: number;
-  color: string;
-}
-
-const SummaryStatBox: React.FC<SummaryStatBoxProps> = ({ label, value, color }) => (
+const SummaryStatBox: React.FC<{ label: string; value: number; color: string }> = ({ label, value, color }) => (
   <div className={`p-4 rounded-2xl flex flex-col items-center justify-center ${color} shadow-sm border border-black/5`}>
     <span className="text-2xl font-black">{value}</span>
     <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">{label}</span>

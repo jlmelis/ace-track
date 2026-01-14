@@ -189,6 +189,8 @@ const App: React.FC = () => {
         return activeMatch && activeEvent ? (
           <MatchDetail 
             match={activeMatch}
+            /* Passed the required 'profile' prop to MatchDetail */
+            profile={data.profile}
             onBack={() => setCurrentView('event')}
             onAddSet={() => addSet(activeEvent.id, activeMatch.id)}
             onSelectSet={(id) => { setActiveSetId(id); setCurrentView('set'); }}
