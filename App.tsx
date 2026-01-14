@@ -53,14 +53,18 @@ const App: React.FC = () => {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(reg => {
+        // Check if there's already a worker waiting from a previous session
         if (reg.waiting) {
           setWaitingWorker(reg.waiting);
           setShowUpdatePrompt(true);
         }
+
+        // Listen for new updates found
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
+              // Only show the prompt when the new worker has finished installing (it's now waiting)
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 setWaitingWorker(newWorker);
                 setShowUpdatePrompt(true);
@@ -68,6 +72,14 @@ const App: React.FC = () => {
             });
           }
         });
+
+        // Periodic check for updates when the app is focused
+        const checkUpdate = () => {
+          reg.update().catch(err => console.debug('SW update check failed', err));
+        };
+
+        window.addEventListener('focus', checkUpdate);
+        return () => window.removeEventListener('focus', checkUpdate);
       });
 
       let refreshing = false;
