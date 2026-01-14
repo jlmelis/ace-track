@@ -13,6 +13,7 @@ export interface PlayerProfile {
   number: string;
   position: string;
   trackedStats: string[]; // IDs of definitions
+  categoryAliases: Record<StatCategory, string>; // 1-2 char labels for tabs
 }
 
 export interface StatLog {
@@ -78,3 +79,11 @@ export const DEFAULT_STATS: StatDefinition[] = [
   { id: 'block_touch', label: 'Blk Touch', category: 'Blocking', enabled: true },
   { id: 'block_err', label: 'Blk Error', category: 'Blocking', enabled: true },
 ];
+
+export const DEFAULT_ALIASES: Record<StatCategory, string> = {
+  'Attacking': 'AT',
+  'Serving': 'SV',
+  'Defense': 'DF',
+  'Setting': 'ST',
+  'Blocking': 'BK'
+};

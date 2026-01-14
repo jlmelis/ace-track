@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, StatLog } from './types.ts';
+import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, DEFAULT_ALIASES, StatLog } from './types.ts';
 import { RefreshCw, X } from 'lucide-react';
 
 // Components
@@ -29,14 +29,22 @@ const App: React.FC = () => {
   // App Data State
   const [data, setData] = useState<AppState>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Migration: Add aliases if missing
+      if (!parsed.profile.categoryAliases) {
+        parsed.profile.categoryAliases = { ...DEFAULT_ALIASES };
+      }
+      return parsed;
+    }
     return {
       events: [],
       profile: {
         name: 'My Daughter',
         number: '10',
         position: 'Outside Hitter',
-        trackedStats: DEFAULT_STATS.map(s => s.id)
+        trackedStats: DEFAULT_STATS.map(s => s.id),
+        categoryAliases: { ...DEFAULT_ALIASES }
       }
     };
   });
@@ -45,13 +53,10 @@ const App: React.FC = () => {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(reg => {
-        // Handle case where worker is already waiting (e.g. background update)
         if (reg.waiting) {
           setWaitingWorker(reg.waiting);
           setShowUpdatePrompt(true);
         }
-
-        // Listen for updates while the app is open
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           if (newWorker) {
@@ -65,7 +70,6 @@ const App: React.FC = () => {
         });
       });
 
-      // Reload the page when the new service worker takes control
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (!refreshing) {
@@ -83,12 +87,9 @@ const App: React.FC = () => {
     }
   };
 
-  // Check for first visit
   useEffect(() => {
     const hasSeen = localStorage.getItem(ONBOARDING_KEY);
-    if (!hasSeen) {
-      setShowOnboarding(true);
-    }
+    if (!hasSeen) setShowOnboarding(true);
   }, []);
 
   const dismissOnboarding = () => {
@@ -96,24 +97,16 @@ const App: React.FC = () => {
     setShowOnboarding(false);
   };
 
-  // Persist data
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data]);
 
-  // Derived Values
   const activeEvent = useMemo(() => data.events.find(e => e.id === activeEventId), [data.events, activeEventId]);
   const activeMatch = useMemo(() => activeEvent?.matches.find(m => m.id === activeMatchId), [activeEvent, activeMatchId]);
   const activeSet = useMemo(() => activeMatch?.sets.find(s => s.id === activeSetId), [activeMatch, activeSetId]);
 
-  // Actions
   const addEvent = (name: string, location: string) => {
-    const newEvent: Event = {
-      id: crypto.randomUUID(),
-      name,
-      location,
-      matches: []
-    };
+    const newEvent: Event = { id: crypto.randomUUID(), name, location, matches: [] };
     setData(prev => ({ ...prev, events: [newEvent, ...prev.events] }));
   };
 
@@ -130,12 +123,7 @@ const App: React.FC = () => {
   };
 
   const addMatch = (eventId: string, opponent: string) => {
-    const newMatch: Match = {
-      id: crypto.randomUUID(),
-      opponent,
-      date: new Date().toLocaleDateString(),
-      sets: []
-    };
+    const newMatch: Match = { id: crypto.randomUUID(), opponent, date: new Date().toLocaleDateString(), sets: [] };
     setData(prev => ({
       ...prev,
       events: prev.events.map(e => e.id === eventId ? { ...e, matches: [...e.matches, newMatch] } : e)
@@ -144,12 +132,7 @@ const App: React.FC = () => {
 
   const addSet = (eventId: string, matchId: string) => {
     const match = data.events.find(e => e.id === eventId)?.matches.find(m => m.id === matchId);
-    const newSet: SetData = {
-      id: crypto.randomUUID(),
-      setNumber: (match?.sets.length || 0) + 1,
-      logs: [],
-      isCompleted: false
-    };
+    const newSet: SetData = { id: crypto.randomUUID(), setNumber: (match?.sets.length || 0) + 1, logs: [], isCompleted: false };
     setData(prev => ({
       ...prev,
       events: prev.events.map(e => e.id === eventId ? {
@@ -163,12 +146,7 @@ const App: React.FC = () => {
 
   const recordStat = (statId: string) => {
     if (!activeEventId || !activeMatchId || !activeSetId) return;
-    const log: StatLog = {
-      id: crypto.randomUUID(),
-      statId,
-      timestamp: Date.now(),
-      value: 1
-    };
+    const log: StatLog = { id: crypto.randomUUID(), statId, timestamp: Date.now(), value: 1 };
     setData(prev => ({
       ...prev,
       events: prev.events.map(e => e.id === activeEventId ? {
@@ -209,97 +187,42 @@ const App: React.FC = () => {
     }));
   };
 
-  const updateProfile = (profile: PlayerProfile) => {
-    setData(prev => ({ ...prev, profile }));
-  };
+  const updateProfile = (profile: PlayerProfile) => setData(prev => ({ ...prev, profile }));
 
   const renderContent = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard 
-          events={data.events} 
-          onAddEvent={addEvent} 
-          onSelectEvent={(id) => { setActiveEventId(id); setCurrentView('event'); }}
-          onDeleteEvent={deleteEvent}
-        />;
+        return <Dashboard events={data.events} onAddEvent={addEvent} onSelectEvent={(id) => { setActiveEventId(id); setCurrentView('event'); }} onDeleteEvent={deleteEvent} />;
       case 'event':
-        return activeEvent ? (
-          <EventDetail 
-            event={activeEvent}
-            onBack={() => setCurrentView('dashboard')}
-            onAddMatch={(opp) => addMatch(activeEvent.id, opp)}
-            onSelectMatch={(id) => { setActiveMatchId(id); setCurrentView('match'); }}
-          />
-        ) : null;
+        return activeEvent ? <EventDetail event={activeEvent} onBack={() => setCurrentView('dashboard')} onAddMatch={(opp) => addMatch(activeEvent.id, opp)} onSelectMatch={(id) => { setActiveMatchId(id); setCurrentView('match'); }} /> : null;
       case 'match':
-        return activeMatch && activeEvent ? (
-          <MatchDetail 
-            match={activeMatch}
-            profile={data.profile}
-            onBack={() => setCurrentView('event')}
-            onAddSet={() => addSet(activeEvent.id, activeMatch.id)}
-            onSelectSet={(id) => { setActiveSetId(id); setCurrentView('set'); }}
-          />
-        ) : null;
+        return activeMatch && activeEvent ? <MatchDetail match={activeMatch} profile={data.profile} onBack={() => setCurrentView('event')} onAddSet={() => addSet(activeEvent.id, activeMatch.id)} onSelectSet={(id) => { setActiveSetId(id); setCurrentView('set'); }} /> : null;
       case 'set':
-        return activeSet && activeMatch && activeEvent ? (
-          <SetTracker 
-            set={activeSet}
-            match={activeMatch}
-            profile={data.profile}
-            onBack={() => setCurrentView('match')}
-            onRecord={recordStat}
-            onUndo={undoLastStat}
-            onToggleComplete={toggleSetComplete}
-          />
-        ) : null;
+        return activeSet && activeMatch && activeEvent ? <SetTracker set={activeSet} match={activeMatch} profile={data.profile} onBack={() => setCurrentView('match')} onRecord={recordStat} onUndo={undoLastStat} onToggleComplete={toggleSetComplete} /> : null;
       case 'settings':
-        return <ProfileSettings 
-          profile={data.profile} 
-          onSave={updateProfile} 
-          onBack={() => setCurrentView('dashboard')}
-        />;
+        return <ProfileSettings profile={data.profile} onSave={updateProfile} onBack={() => setCurrentView('dashboard')} />;
       default:
         return null;
     }
   };
 
   return (
-    <Layout 
-      currentView={currentView} 
-      setView={setCurrentView} 
-      playerName={data.profile.name}
-      hasActiveSet={!!activeSetId}
-    >
+    <Layout currentView={currentView} setView={setCurrentView} playerName={data.profile.name} hasActiveSet={!!activeSetId}>
       {renderContent()}
       {showOnboarding && <OnboardingModal onDismiss={dismissOnboarding} />}
-
-      {/* Update Prompt Toast */}
       {showUpdatePrompt && (
         <div className="fixed bottom-20 left-4 right-4 z-[200] animate-in slide-in-from-bottom-4 duration-500">
           <div className="bg-indigo-600 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 border border-indigo-500">
             <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-xl text-white animate-pulse">
-                <RefreshCw size={20} />
-              </div>
+              <div className="bg-white/20 p-2 rounded-xl text-white animate-pulse"><RefreshCw size={20} /></div>
               <div>
                 <h4 className="text-sm font-bold text-white leading-none">Update Available</h4>
                 <p className="text-[10px] text-indigo-100 mt-1 uppercase tracking-wider font-medium">New features are ready!</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-               <button 
-                onClick={handleUpdate}
-                className="bg-white text-indigo-600 text-xs font-black px-4 py-2 rounded-xl shadow-sm active:scale-95 transition-all uppercase tracking-widest"
-              >
-                Update Now
-              </button>
-              <button 
-                onClick={() => setShowUpdatePrompt(false)}
-                className="p-1 text-indigo-200 hover:text-white transition-colors"
-              >
-                <X size={20} />
-              </button>
+               <button onClick={handleUpdate} className="bg-white text-indigo-600 text-xs font-black px-4 py-2 rounded-xl shadow-sm active:scale-95 transition-all uppercase tracking-widest">Update Now</button>
+               <button onClick={() => setShowUpdatePrompt(false)} className="p-1 text-indigo-200 hover:text-white transition-colors"><X size={20} /></button>
             </div>
           </div>
         </div>
