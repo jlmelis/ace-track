@@ -1,9 +1,8 @@
-
 const CACHE_NAME = 'acetrack-v1';
 const ASSETS = [
-  './',
-  './index.html',
-  './metadata.json'
+  '/',
+  '/index.html',
+  '/metadata.json'
 ];
 
 self.addEventListener('install', (event) => {
@@ -21,15 +20,13 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then((response) => {
       return response || fetch(event.request).then(fetchRes => {
         return caches.open(CACHE_NAME).then(cache => {
-          // Cache successful responses for assets
           if (fetchRes.status === 200) {
             cache.put(event.request, fetchRes.clone());
           }
           return fetchRes;
         });
       }).catch(() => {
-        // Fallback for offline if not in cache
-        return caches.match('./index.html');
+        return caches.match('/index.html');
       });
     })
   );
