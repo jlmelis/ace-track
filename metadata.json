@@ -1,0 +1,10 @@
+{
+  "name": "AceTrack - Individual Volleyball Stats",
+  "short_name": "AceTrack",
+  "description": "A high-performance, offline-first volleyball stat tracker designed for individual players.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "requestFramePermissions": []
+}
