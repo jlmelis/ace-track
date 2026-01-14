@@ -31,6 +31,19 @@
       background-color: #f8fafc;
       color: #0f172a;
     }
+    
+    /* Notch and Safe Area Utilities */
+    .pt-safe {
+      padding-top: env(safe-area-inset-top);
+    }
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .top-safe-offset {
+      /* Base header height (57px) + safe area top */
+      top: calc(57px + env(safe-area-inset-top));
+    }
+
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
       .safe-bottom {
         padding-bottom: env(safe-area-inset-bottom);

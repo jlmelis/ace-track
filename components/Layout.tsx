@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Home, Settings, Trophy, Activity } from 'lucide-react';
 
@@ -13,8 +12,8 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerName, hasActiveSet }) => {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+      {/* Header with Notch Protection */}
+      <header className="bg-white border-b sticky top-0 z-50 pt-safe px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
             <Activity size={20} strokeWidth={2.5} />
@@ -38,7 +37,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
       </main>
 
       {/* Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t safe-bottom z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t pb-safe z-50">
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
           <NavButton 
             active={currentView === 'dashboard' || currentView === 'event' || currentView === 'match'} 

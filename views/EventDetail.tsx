@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Plus, ChevronRight, Activity, Calendar, Download } from 'lucide-react';
 import { Event, DEFAULT_STATS } from '../types';
@@ -62,7 +61,8 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
 
   return (
     <div className="animate-in slide-in-from-right-4 duration-200">
-      <div className="bg-white p-4 border-b flex items-center justify-between sticky top-0 z-10">
+      {/* Sub-header offset to sit under main header */}
+      <div className="bg-white p-4 border-b flex items-center justify-between sticky top-safe-offset z-10">
         <div className="flex items-center gap-4">
           <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full">
             <ArrowLeft size={24} />
