@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, StatLog } from './types';
+import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, StatLog } from './types.ts';
 
 // Components
-import Layout from './components/Layout';
-import Dashboard from './views/Dashboard';
-import EventDetail from './views/EventDetail';
-import MatchDetail from './views/MatchDetail';
-import SetTracker from './views/SetTracker';
-import ProfileSettings from './views/ProfileSettings';
-import OnboardingModal from './components/OnboardingModal';
+import Layout from './components/Layout.tsx';
+import Dashboard from './views/Dashboard.tsx';
+import EventDetail from './views/EventDetail.tsx';
+import MatchDetail from './views/MatchDetail.tsx';
+import SetTracker from './views/SetTracker.tsx';
+import ProfileSettings from './views/ProfileSettings.tsx';
+import OnboardingModal from './components/OnboardingModal.tsx';
 
 const STORAGE_KEY = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
