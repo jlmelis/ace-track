@@ -1,8 +1,8 @@
-const CACHE_NAME = 'acetrack-v1';
+const CACHE_NAME = 'acetrack-v2';
 const ASSETS = [
   '/',
   '/index.html',
-  '/metadata.json'
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
