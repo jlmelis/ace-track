@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { PlayerProfile, DEFAULT_STATS, StatCategory, AppState } from '../types';
 
 interface ProfileSettingsProps {
@@ -13,6 +13,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
   const [localProfile, setLocalProfile] = useState<PlayerProfile>({ ...profile });
   const [showSaved, setShowSaved] = useState(false);
   const [storageUsage, setStorageUsage] = useState<string>('0 KB');
+  const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({
+    'Attacking': true // Default open the most common category
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -36,6 +39,13 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
           : [...prev.trackedStats, id]
       };
     });
+  };
+
+  const toggleCategory = (cat: string) => {
+    setExpandedCats(prev => ({
+      ...prev,
+      [cat]: !prev[cat]
+    }));
   };
 
   const handleSave = () => {
@@ -97,7 +107,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
 
   return (
     <div className="animate-in slide-in-from-right-4 duration-200 pb-24">
-      <div className="bg-white p-4 border-b flex items-center justify-between sticky top-0 z-10">
+      {/* Settings sub-header also offset to clear the fixed layout header */}
+      <div className="bg-white p-4 border-b flex items-center justify-between sticky sub-header-top z-40 shadow-sm">
         <div className="flex items-center gap-4">
           <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full">
             <ArrowLeft size={24} />
@@ -151,36 +162,56 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
         <section className="space-y-4">
           <div className="px-1">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Tracked Metrics</h3>
-            <p className="text-[10px] text-slate-500 mt-1 uppercase font-medium">Select which stats appear during live tracking</p>
+            <p className="text-[10px] text-slate-500 mt-1 uppercase font-medium">Toggle metrics for live tracking</p>
           </div>
           
-          <div className="space-y-6">
-            {categories.map(cat => (
-              <div key={cat} className="space-y-2">
-                <h4 className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider bg-indigo-50 py-1 px-3 rounded-md w-fit">{cat}</h4>
-                <div className="grid grid-cols-1 gap-2">
-                  {DEFAULT_STATS.filter(s => s.category === cat).map(stat => (
-                    <label 
-                      key={stat.id}
-                      className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${localProfile.trackedStats.includes(stat.id) ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-white border-slate-200 opacity-70'}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${localProfile.trackedStats.includes(stat.id) ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'}`}>
-                          {localProfile.trackedStats.includes(stat.id) && <Check size={14} className="text-white" strokeWidth={3} />}
-                        </div>
-                        <span className="font-bold text-slate-700">{stat.label}</span>
-                      </div>
-                      <input 
-                        type="checkbox" 
-                        className="hidden" 
-                        checked={localProfile.trackedStats.includes(stat.id)}
-                        onChange={() => toggleStat(stat.id)}
-                      />
-                    </label>
-                  ))}
+          <div className="space-y-3">
+            {categories.map(cat => {
+              const isExpanded = !!expandedCats[cat];
+              const catStats = DEFAULT_STATS.filter(s => s.category === cat);
+              const activeCount = catStats.filter(s => localProfile.trackedStats.includes(s.id)).length;
+
+              return (
+                <div key={cat} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                  <button 
+                    onClick={() => toggleCategory(cat)}
+                    className="w-full flex items-center justify-between p-4 active:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <h4 className="text-sm font-bold text-slate-800">{cat}</h4>
+                      <span className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full uppercase">
+                        {activeCount} / {catStats.length}
+                      </span>
+                    </div>
+                    {isExpanded ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
+                  </button>
+                  
+                  {isExpanded && (
+                    <div className="border-t border-slate-100 p-2 grid gap-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                      {catStats.map(stat => (
+                        <label 
+                          key={stat.id}
+                          className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${localProfile.trackedStats.includes(stat.id) ? 'bg-indigo-50/50 border-indigo-100' : 'bg-transparent border-transparent opacity-70'}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${localProfile.trackedStats.includes(stat.id) ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'}`}>
+                              {localProfile.trackedStats.includes(stat.id) && <Check size={14} className="text-white" strokeWidth={3} />}
+                            </div>
+                            <span className="text-sm font-semibold text-slate-700">{stat.label}</span>
+                          </div>
+                          <input 
+                            type="checkbox" 
+                            className="hidden" 
+                            checked={localProfile.trackedStats.includes(stat.id)}
+                            onChange={() => toggleStat(stat.id)}
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
