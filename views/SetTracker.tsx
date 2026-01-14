@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { ArrowLeft, RotateCcw, CheckCircle2, Circle } from 'lucide-react';
-import { SetData, Match, PlayerProfile, DEFAULT_STATS, StatDefinition, StatCategory } from '../types.ts';
+import { SetData, Match, PlayerProfile, DEFAULT_STATS, StatDefinition, StatCategory, CATEGORY_ORDER } from '../types.ts';
 
 interface SetTrackerProps {
   set: SetData;
@@ -48,9 +48,10 @@ const SetTracker: React.FC<SetTrackerProps> = ({
   }, [profile.trackedStats]);
 
   const categories = useMemo(() => {
-    const cats = new Set<StatCategory>();
-    enabledStats.forEach(s => cats.add(s.category));
-    return Array.from(cats);
+    const activeCats = new Set<StatCategory>();
+    enabledStats.forEach(s => activeCats.add(s.category));
+    // Sort categories based on the defined master order
+    return CATEGORY_ORDER.filter(cat => activeCats.has(cat));
   }, [enabledStats]);
 
   const [activeTab, setActiveTab] = useState<StatCategory>(categories[0] || 'Attacking');
@@ -109,7 +110,7 @@ const SetTracker: React.FC<SetTrackerProps> = ({
           </div>
         </div>
 
-        {/* Alias Tabs - Compact 1-row layout */}
+        {/* Alias Tabs - Compact 1-row layout following CATEGORY_ORDER */}
         <div className="px-4 pb-3 flex justify-between gap-1">
           {categories.map((cat) => {
             const isActive = activeTab === cat;

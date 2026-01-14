@@ -49,6 +49,14 @@ export interface AppState {
   profile: PlayerProfile;
 }
 
+export const CATEGORY_ORDER: StatCategory[] = [
+  'Attacking',
+  'Blocking',
+  'Serving',
+  'Defense',
+  'Setting'
+];
+
 export const DEFAULT_STATS: StatDefinition[] = [
   // Attacking
   { id: 'kill', label: 'Kill', category: 'Attacking', enabled: true },
@@ -82,8 +90,8 @@ export const DEFAULT_STATS: StatDefinition[] = [
 
 export const DEFAULT_ALIASES: Record<StatCategory, string> = {
   'Attacking': 'AT',
+  'Blocking': 'BK',
   'Serving': 'SV',
   'Defense': 'DF',
-  'Setting': 'ST',
-  'Blocking': 'BK'
+  'Setting': 'ST'
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle, ChevronDown, ChevronUp, Type } from 'lucide-react';
-import { PlayerProfile, DEFAULT_STATS, StatCategory, AppState, DEFAULT_ALIASES } from '../types';
+import { PlayerProfile, DEFAULT_STATS, StatCategory, AppState, DEFAULT_ALIASES, CATEGORY_ORDER } from '../types';
 
 interface ProfileSettingsProps {
   profile: PlayerProfile;
@@ -96,7 +96,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
     reader.readAsText(file);
   };
 
-  const categories: StatCategory[] = ['Attacking', 'Serving', 'Defense', 'Setting', 'Blocking'];
+  const categories = CATEGORY_ORDER;
 
   return (
     <div className="animate-in slide-in-from-right-4 duration-200 pb-24">
