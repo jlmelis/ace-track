@@ -12,14 +12,18 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerName, hasActiveSet }) => {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header with Notch Protection */}
-      <header className="bg-white border-b sticky top-0 z-50 pt-safe px-4 py-3 flex items-center justify-between">
+      {/* 
+        Fixed Header ensures it stays at the very top.
+        pt-safe handles the camera notch.
+        h-[calc(var(--header-base-height)+env(safe-area-inset-top))] ensures the background fills the whole top.
+      */}
+      <header className="fixed top-0 left-0 right-0 bg-white border-b z-[100] pt-safe px-4 flex items-center justify-between shadow-sm" style={{ height: 'calc(var(--header-base-height) + env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2">
           <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
             <Activity size={20} strokeWidth={2.5} />
           </div>
           <div>
-            <h1 className="text-lg font-bold leading-none">AceTrack</h1>
+            <h1 className="text-base font-bold leading-none">AceTrack</h1>
             <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider mt-0.5">{playerName}</p>
           </div>
         </div>
@@ -31,13 +35,13 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
         </button>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pb-24">
+      {/* Main Content with top offset to clear the fixed header */}
+      <main className="flex-1 content-top-offset pb-24">
         {children}
       </main>
 
       {/* Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t pb-safe z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t pb-safe z-[100]">
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
           <NavButton 
             active={currentView === 'dashboard' || currentView === 'event' || currentView === 'match'} 

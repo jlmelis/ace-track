@@ -50,8 +50,8 @@ const SetTracker: React.FC<SetTrackerProps> = ({
   const lastStatLabel = lastStat ? DEFAULT_STATS.find(s => s.id === lastStat.statId)?.label : null;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-130px)] animate-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-white p-4 border-b flex items-center justify-between sticky top-safe-offset z-10">
+    <div className="flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+      <div className="bg-white p-4 border-b flex items-center justify-between sticky sub-header-top z-40 shadow-sm">
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full">
             <ArrowLeft size={24} />
@@ -117,7 +117,7 @@ const SetTracker: React.FC<SetTrackerProps> = ({
         ))}
 
         {set.logs.length > 0 && (
-          <div className="mt-8 pt-8 border-t border-slate-100">
+          <div className="mt-8 pt-8 border-t border-slate-100 pb-10">
              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] px-1 mb-4">
               Live Feed
             </h3>

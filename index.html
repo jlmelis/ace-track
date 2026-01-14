@@ -7,14 +7,12 @@
   <title>AceTrack</title>
   <meta name="description" content="Individual Volleyball Stats Tracker">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#4f46e5">
+  <meta name="theme-color" content="#ffffff">
 
-  <!-- Best Practice: SVG Icon -->
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
   
-  <!-- iOS support -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="AceTrack">
   <link rel="apple-touch-icon" href="/icon.svg">
   
@@ -24,6 +22,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <style>
+    :root {
+      --header-base-height: 60px;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
       -webkit-tap-highlight-color: transparent;
@@ -32,16 +34,21 @@
       color: #0f172a;
     }
     
-    /* Notch and Safe Area Utilities */
     .pt-safe {
       padding-top: env(safe-area-inset-top);
     }
     .pb-safe {
       padding-bottom: env(safe-area-inset-bottom);
     }
-    .top-safe-offset {
-      /* Base header height (57px) + safe area top */
-      top: calc(57px + env(safe-area-inset-top));
+    
+    /* Offset for content to sit exactly below the fixed header */
+    .content-top-offset {
+      padding-top: calc(var(--header-base-height) + env(safe-area-inset-top));
+    }
+
+    /* Offset for sub-headers that stick below the main header */
+    .sub-header-top {
+      top: calc(var(--header-base-height) + env(safe-area-inset-top));
     }
 
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
@@ -67,16 +74,5 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(reg => {
-          console.log('SW active');
-        }).catch(err => {
-          console.warn('SW failed:', err);
-        });
-      });
-    }
-  </script>
 </body>
 </html>
