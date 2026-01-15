@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { ArrowLeft, RotateCcw, CheckCircle2, Circle } from 'lucide-react';
-import { SetData, Match, PlayerProfile, DEFAULT_STATS, StatDefinition, StatCategory, CATEGORY_ORDER } from '../types.ts';
+import { SetData, Match, PlayerProfile, StatDefinition, StatCategory, CATEGORY_ORDER } from '../types.ts';
 
 interface SetTrackerProps {
   set: SetData;
@@ -10,6 +10,7 @@ interface SetTrackerProps {
   onRecord: (statId: string) => void;
   onUndo: () => void;
   onToggleComplete: () => void;
+  allStats: StatDefinition[];
 }
 
 const CATEGORY_THEMES: Record<StatCategory, { bg: string; text: string; border: string; btn: string; ring: string }> = {
@@ -27,12 +28,12 @@ const SetTracker: React.FC<SetTrackerProps> = ({
   onBack, 
   onRecord, 
   onUndo, 
-  onToggleComplete 
+  onToggleComplete,
+  allStats
 }) => {
   const [toastVisible, setToastVisible] = useState(false);
   const logCount = set.logs.length;
 
-  // Auto-hide the confirmation toast after 1.5 seconds
   useEffect(() => {
     if (logCount > 0) {
       setToastVisible(true);
@@ -44,17 +45,23 @@ const SetTracker: React.FC<SetTrackerProps> = ({
   }, [logCount]);
 
   const enabledStats = useMemo(() => {
-    return DEFAULT_STATS.filter(stat => profile.trackedStats.includes(stat.id));
-  }, [profile.trackedStats]);
+    return allStats.filter(stat => profile.trackedStats.includes(stat.id));
+  }, [profile.trackedStats, allStats]);
 
   const categories = useMemo(() => {
     const activeCats = new Set<StatCategory>();
     enabledStats.forEach(s => activeCats.add(s.category));
-    // Sort categories based on the defined master order
     return CATEGORY_ORDER.filter(cat => activeCats.has(cat));
   }, [enabledStats]);
 
   const [activeTab, setActiveTab] = useState<StatCategory>(categories[0] || 'Attacking');
+
+  // Handle case where active tab might disappear if a category has no enabled stats
+  useEffect(() => {
+    if (categories.length > 0 && !categories.includes(activeTab)) {
+      setActiveTab(categories[0]);
+    }
+  }, [categories, activeTab]);
 
   const groupedStats = useMemo(() => {
     const groups: Record<string, StatDefinition[]> = {};
@@ -74,11 +81,10 @@ const SetTracker: React.FC<SetTrackerProps> = ({
   }, [set.logs]);
 
   const lastStat = set.logs[set.logs.length - 1];
-  const lastStatLabel = lastStat ? DEFAULT_STATS.find(s => s.id === lastStat.statId)?.label : null;
+  const lastStatLabel = lastStat ? allStats.find(s => s.id === lastStat.statId)?.label : null;
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      {/* Fixed Header Content */}
       <div className="bg-white border-b sticky sub-header-top z-40 shadow-sm">
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -110,7 +116,6 @@ const SetTracker: React.FC<SetTrackerProps> = ({
           </div>
         </div>
 
-        {/* Alias Tabs - Compact 1-row layout following CATEGORY_ORDER */}
         <div className="px-4 pb-3 flex justify-between gap-1">
           {categories.map((cat) => {
             const isActive = activeTab === cat;
@@ -135,69 +140,74 @@ const SetTracker: React.FC<SetTrackerProps> = ({
         </div>
       </div>
 
-      {/* Main Tracking Area */}
       <div className="p-4 space-y-4 pb-32">
-        <div className="flex items-center justify-between px-1">
-          <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] ${CATEGORY_THEMES[activeTab].text}`}>
-            {activeTab}
-          </h3>
-          <span className="text-[10px] font-black text-slate-400 uppercase">
-            {groupedStats[activeTab]?.length || 0} Options
-          </span>
-        </div>
-
-        {set.isCompleted && (
-          <div className="bg-emerald-50 border border-emerald-100 text-emerald-800 p-4 rounded-2xl text-xs text-center font-bold uppercase tracking-widest">
-            Set Complete
+        {categories.length === 0 ? (
+          <div className="text-center py-20">
+             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest leading-relaxed">No stats enabled.<br/>Please go to Settings to select tracked metrics.</p>
           </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-3">
-          {(groupedStats[activeTab] || []).map(stat => (
-            <button
-              key={stat.id}
-              disabled={set.isCompleted}
-              onClick={() => onRecord(stat.id)}
-              className={`relative flex flex-col items-center justify-center p-6 rounded-[2rem] border-2 transition-all active:scale-[0.9]
-                ${set.isCompleted 
-                  ? 'bg-slate-50 border-slate-100 opacity-40' 
-                  : `bg-white border-slate-200/60 shadow-sm ${CATEGORY_THEMES[activeTab].btn}`
-                }
-              `}
-            >
-              <span className={`text-3xl font-black mb-1 ${setTotals[stat.id] ? CATEGORY_THEMES[activeTab].text : 'text-slate-800'}`}>
-                {setTotals[stat.id] || 0}
+        ) : (
+          <>
+            <div className="flex items-center justify-between px-1">
+              <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] ${CATEGORY_THEMES[activeTab].text}`}>
+                {activeTab}
+              </h3>
+              <span className="text-[10px] font-black text-slate-400 uppercase">
+                {groupedStats[activeTab]?.length || 0} Options
               </span>
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight text-center leading-none">
-                {stat.label}
-              </span>
-            </button>
-          ))}
-        </div>
+            </div>
 
-        {/* Activity Feed */}
-        {set.logs.length > 0 && (
-          <div className="pt-6">
-             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] px-2 mb-3">
-              Last Actions
-            </h3>
-            <div className="space-y-2">
-              {set.logs.slice(-2).reverse().map((log, i) => (
-                <div key={log.id} className={`flex items-center justify-between px-4 py-3 rounded-2xl bg-white border border-slate-100 ${i === 0 ? 'ring-2 ring-indigo-500/10' : 'opacity-40'}`}>
-                   <span className="text-xs font-bold text-slate-700">
-                    {DEFAULT_STATS.find(s => s.id === log.statId)?.label}
-                   </span>
-                   <span className="text-[10px] text-slate-400 font-black tabular-nums">
-                    {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                   </span>
-                </div>
+            {set.isCompleted && (
+              <div className="bg-emerald-50 border border-emerald-100 text-emerald-800 p-4 rounded-2xl text-xs text-center font-bold uppercase tracking-widest">
+                Set Complete
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              {(groupedStats[activeTab] || []).map(stat => (
+                <button
+                  key={stat.id}
+                  disabled={set.isCompleted}
+                  onClick={() => onRecord(stat.id)}
+                  className={`relative flex flex-col items-center justify-center p-6 rounded-[2rem] border-2 transition-all active:scale-[0.9]
+                    ${set.isCompleted 
+                      ? 'bg-slate-50 border-slate-100 opacity-40' 
+                      : `bg-white border-slate-200/60 shadow-sm ${CATEGORY_THEMES[activeTab].btn}`
+                    }
+                  `}
+                >
+                  <span className={`text-3xl font-black mb-1 ${setTotals[stat.id] ? CATEGORY_THEMES[activeTab].text : 'text-slate-800'}`}>
+                    {setTotals[stat.id] || 0}
+                  </span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight text-center leading-none px-1">
+                    {stat.label}
+                  </span>
+                </button>
               ))}
             </div>
-          </div>
+
+            {set.logs.length > 0 && (
+              <div className="pt-6">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] px-2 mb-3">
+                  Last Actions
+                </h3>
+                <div className="space-y-2">
+                  {set.logs.slice(-2).reverse().map((log, i) => (
+                    <div key={log.id} className={`flex items-center justify-between px-4 py-3 rounded-2xl bg-white border border-slate-100 ${i === 0 ? 'ring-2 ring-indigo-500/10' : 'opacity-40'}`}>
+                      <span className="text-xs font-bold text-slate-700">
+                        {allStats.find(s => s.id === log.statId)?.label}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-black tabular-nums">
+                        {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Floating Confirmation Toast - Now with auto-hide logic */}
       {toastVisible && lastStatLabel && !set.isCompleted && (
         <div 
           key={set.logs.length} 

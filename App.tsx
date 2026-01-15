@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, DEFAULT_ALIASES, StatLog } from './types.ts';
+import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, DEFAULT_ALIASES, StatLog, StatDefinition } from './types.ts';
 import { RefreshCw, X } from 'lucide-react';
 
 // Components
@@ -13,7 +13,7 @@ import OnboardingModal from './components/OnboardingModal.tsx';
 
 const STORAGE_KEY = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
-const VERSION = 'v14';
+const VERSION = 'v15';
 
 const App: React.FC = () => {
   // Navigation State
@@ -35,10 +35,14 @@ const App: React.FC = () => {
       if (!parsed.profile.categoryAliases) {
         parsed.profile.categoryAliases = { ...DEFAULT_ALIASES };
       }
+      if (!parsed.customStats) {
+        parsed.customStats = [];
+      }
       return parsed;
     }
     return {
       events: [],
+      customStats: [],
       profile: {
         name: 'My Daughter',
         number: '10',
@@ -48,6 +52,8 @@ const App: React.FC = () => {
       }
     };
   });
+
+  const allStats = useMemo(() => [...DEFAULT_STATS, ...data.customStats], [data.customStats]);
 
   // Handle PWA Updates
   useEffect(() => {
@@ -193,6 +199,36 @@ const App: React.FC = () => {
     }
   };
 
+  const addCustomStat = (stat: Omit<StatDefinition, 'id' | 'enabled'>) => {
+    const newStat: StatDefinition = {
+      ...stat,
+      id: crypto.randomUUID(),
+      enabled: true,
+      isCustom: true
+    };
+    setData(prev => ({
+      ...prev,
+      customStats: [...prev.customStats, newStat],
+      profile: {
+        ...prev.profile,
+        trackedStats: [...prev.profile.trackedStats, newStat.id]
+      }
+    }));
+  };
+
+  const deleteCustomStat = (id: string) => {
+    if (window.confirm('Delete this custom stat? This will remove it from all tracking and profile views.')) {
+      setData(prev => ({
+        ...prev,
+        customStats: prev.customStats.filter(s => s.id !== id),
+        profile: {
+          ...prev.profile,
+          trackedStats: prev.profile.trackedStats.filter(sid => sid !== id)
+        }
+      }));
+    }
+  };
+
   const recordStat = (statId: string) => {
     if (!activeEventId || !activeMatchId || !activeSetId) return;
     const log: StatLog = { id: crypto.randomUUID(), statId, timestamp: Date.now(), value: 1 };
@@ -243,13 +279,13 @@ const App: React.FC = () => {
       case 'dashboard':
         return <Dashboard events={data.events} onAddEvent={addEvent} onSelectEvent={(id) => { setActiveEventId(id); setCurrentView('event'); }} onDeleteEvent={deleteEvent} />;
       case 'event':
-        return activeEvent ? <EventDetail event={activeEvent} onBack={() => setCurrentView('dashboard')} onAddMatch={(opp, mdate) => addMatch(activeEvent.id, opp, mdate)} onSelectMatch={(id) => { setActiveMatchId(id); setCurrentView('match'); }} onDeleteMatch={(mid) => deleteMatch(activeEvent.id, mid)} /> : null;
+        return activeEvent ? <EventDetail event={activeEvent} onBack={() => setCurrentView('dashboard')} onAddMatch={(opp, mdate) => addMatch(activeEvent.id, opp, mdate)} onSelectMatch={(id) => { setActiveMatchId(id); setCurrentView('match'); }} onDeleteMatch={(mid) => deleteMatch(activeEvent.id, mid)} allStats={allStats} /> : null;
       case 'match':
-        return activeMatch && activeEvent ? <MatchDetail match={activeMatch} profile={data.profile} onBack={() => setCurrentView('event')} onAddSet={() => addSet(activeEvent.id, activeMatch.id)} onSelectSet={(id) => { setActiveSetId(id); setCurrentView('set'); }} onDeleteSet={(sid) => deleteSet(activeEvent.id, activeMatch.id, sid)} /> : null;
+        return activeMatch && activeEvent ? <MatchDetail match={activeMatch} profile={data.profile} onBack={() => setCurrentView('event')} onAddSet={() => addSet(activeEvent.id, activeMatch.id)} onSelectSet={(id) => { setActiveSetId(id); setCurrentView('set'); }} onDeleteSet={(sid) => deleteSet(activeEvent.id, activeMatch.id, sid)} allStats={allStats} /> : null;
       case 'set':
-        return activeSet && activeMatch && activeEvent ? <SetTracker set={activeSet} match={activeMatch} profile={data.profile} onBack={() => setCurrentView('match')} onRecord={recordStat} onUndo={undoLastStat} onToggleComplete={toggleSetComplete} /> : null;
+        return activeSet && activeMatch && activeEvent ? <SetTracker set={activeSet} match={activeMatch} profile={data.profile} onBack={() => setCurrentView('match')} onRecord={recordStat} onUndo={undoLastStat} onToggleComplete={toggleSetComplete} allStats={allStats} /> : null;
       case 'settings':
-        return <ProfileSettings profile={data.profile} onSave={updateProfile} onBack={() => setCurrentView('dashboard')} />;
+        return <ProfileSettings profile={data.profile} onSave={updateProfile} onBack={() => setCurrentView('dashboard')} customStats={data.customStats} onAddCustomStat={addCustomStat} onDeleteCustomStat={deleteCustomStat} />;
       default:
         return null;
     }

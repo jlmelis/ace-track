@@ -5,6 +5,7 @@ export interface StatDefinition {
   label: string;
   category: StatCategory;
   enabled: boolean;
+  isCustom?: boolean;
 }
 
 export interface PlayerProfile {
@@ -48,6 +49,7 @@ export interface Event {
 export interface AppState {
   events: Event[];
   profile: PlayerProfile;
+  customStats: StatDefinition[];
 }
 
 export const CATEGORY_ORDER: StatCategory[] = [

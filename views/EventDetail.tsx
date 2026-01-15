@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Plus, ChevronRight, Activity, Calendar, Download, Trash2 } from 'lucide-react';
-import { Event, DEFAULT_STATS } from '../types';
+import { Event, StatDefinition } from '../types';
 
 interface EventDetailProps {
   event: Event;
@@ -8,9 +8,10 @@ interface EventDetailProps {
   onAddMatch: (opponent: string, date: string) => void;
   onSelectMatch: (id: string) => void;
   onDeleteMatch: (id: string) => void;
+  allStats: StatDefinition[];
 }
 
-const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, onSelectMatch, onDeleteMatch }) => {
+const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, onSelectMatch, onDeleteMatch, allStats }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [opponent, setOpponent] = useState('');
   const [matchDate, setMatchDate] = useState(event.date); // Default to event start date
@@ -31,7 +32,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
     const rows = event.matches.flatMap(match => 
       match.sets.flatMap(set => 
         set.logs.map(log => {
-          const statDef = DEFAULT_STATS.find(s => s.id === log.statId);
+          const statDef = allStats.find(s => s.id === log.statId);
           return [
             match.opponent,
             match.date,

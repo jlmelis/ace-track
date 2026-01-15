@@ -1,15 +1,17 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
-import { PlayerProfile, DEFAULT_STATS, StatCategory, AppState, DEFAULT_ALIASES, CATEGORY_ORDER } from '../types';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle, ChevronDown, ChevronUp, RefreshCw, Plus } from 'lucide-react';
+import { PlayerProfile, DEFAULT_STATS, StatCategory, AppState, DEFAULT_ALIASES, CATEGORY_ORDER, StatDefinition } from '../types';
 
 interface ProfileSettingsProps {
   profile: PlayerProfile;
   onSave: (p: PlayerProfile) => void;
   onBack: () => void;
+  customStats: StatDefinition[];
+  onAddCustomStat: (stat: Omit<StatDefinition, 'id' | 'enabled'>) => void;
+  onDeleteCustomStat: (id: string) => void;
 }
 
-const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBack }) => {
+const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBack, customStats, onAddCustomStat, onDeleteCustomStat }) => {
   const [localProfile, setLocalProfile] = useState<PlayerProfile>({ ...profile });
   const [showSaved, setShowSaved] = useState(false);
   const [storageUsage, setStorageUsage] = useState<string>('0 KB');
@@ -17,6 +19,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({
     'Attacking': true 
   });
+
+  // Custom Stat Form
+  const [isAddingStat, setIsAddingStat] = useState(false);
+  const [newStatLabel, setNewStatLabel] = useState('');
+  const [newStatCat, setNewStatCat] = useState<StatCategory>(CATEGORY_ORDER[0]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -49,6 +57,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
     }
   };
 
+  const allStatsCombined = useMemo(() => [...DEFAULT_STATS, ...customStats], [customStats]);
+
   const toggleStat = (id: string) => {
     setLocalProfile(prev => {
       const isTracked = prev.trackedStats.includes(id);
@@ -75,6 +85,19 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
     onSave(localProfile);
     setShowSaved(true);
     setTimeout(() => setShowSaved(false), 2000);
+  };
+
+  const handleAddStatSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newStatLabel.trim()) {
+      onAddCustomStat({
+        label: newStatLabel,
+        category: newStatCat,
+        isCustom: true
+      });
+      setNewStatLabel('');
+      setIsAddingStat(false);
+    }
   };
 
   const clearData = () => {
@@ -117,8 +140,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
     reader.readAsText(file);
   };
 
-  const categories = CATEGORY_ORDER;
-
   return (
     <div className="animate-in slide-in-from-right-4 duration-200 pb-24">
       <div className="bg-white p-4 border-b flex items-center justify-between sticky sub-header-top z-40 shadow-sm">
@@ -153,13 +174,82 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
           </div>
         </section>
 
+        {/* Custom Stats Section */}
+        <section className="space-y-4">
+          <div className="px-1 flex items-center justify-between">
+            <div>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Custom Stats</h3>
+              <p className="text-[10px] text-slate-500 mt-1 uppercase font-medium">Add metrics you care about</p>
+            </div>
+            <button 
+              onClick={() => setIsAddingStat(!isAddingStat)}
+              className="p-2 bg-indigo-50 text-indigo-600 rounded-lg active:scale-95 transition-transform"
+            >
+              <Plus size={18} strokeWidth={3} />
+            </button>
+          </div>
+
+          {isAddingStat && (
+            <form onSubmit={handleAddStatSubmit} className="bg-white border border-indigo-100 p-4 rounded-xl space-y-4 animate-in slide-in-from-top-2">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase">Metric Name</label>
+                <input 
+                  autoFocus
+                  required
+                  value={newStatLabel}
+                  onChange={e => setNewStatLabel(e.target.value)}
+                  className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-all"
+                  placeholder="e.g. Free Ball Pass"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase">Category</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {CATEGORY_ORDER.map(cat => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setNewStatCat(cat)}
+                      className={`py-2 px-1 rounded-lg text-[9px] font-bold uppercase transition-all ${newStatCat === cat ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button type="submit" className="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-lg text-xs">Create Stat</button>
+                <button type="button" onClick={() => setIsAddingStat(false)} className="px-4 text-slate-500 text-xs font-bold">Cancel</button>
+              </div>
+            </form>
+          )}
+
+          <div className="grid gap-2">
+            {customStats.length === 0 ? (
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest text-center py-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">No custom stats created</p>
+            ) : (
+              customStats.map(stat => (
+                <div key={stat.id} className="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between shadow-sm">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800">{stat.label}</h4>
+                    <span className="text-[9px] font-black text-indigo-400 uppercase tracking-wider">{stat.category}</span>
+                  </div>
+                  <button onClick={() => onDeleteCustomStat(stat.id)} className="p-2 text-slate-300 active:text-red-500 active:bg-red-50 rounded-lg transition-colors">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
         <section className="space-y-4">
           <div className="px-1">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Navigation Aliases</h3>
             <p className="text-[10px] text-slate-500 mt-1 uppercase font-medium">1-2 character labels for tracker tabs</p>
           </div>
           <div className="grid grid-cols-5 gap-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            {categories.map(cat => (
+            {CATEGORY_ORDER.map(cat => (
               <div key={cat} className="space-y-1">
                 <label className="text-[9px] font-black text-slate-400 uppercase text-center block truncate">{cat}</label>
                 <input 
@@ -179,9 +269,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
             <p className="text-[10px] text-slate-500 mt-1 uppercase font-medium">Toggle metrics for live tracking</p>
           </div>
           <div className="space-y-3">
-            {categories.map(cat => {
+            {CATEGORY_ORDER.map(cat => {
               const isExpanded = !!expandedCats[cat];
-              const catStats = DEFAULT_STATS.filter(s => s.category === cat);
+              const catStats = allStatsCombined.filter(s => s.category === cat);
               const activeCount = catStats.filter(s => localProfile.trackedStats.includes(s.id)).length;
               return (
                 <div key={cat} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
@@ -200,7 +290,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
                             <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${localProfile.trackedStats.includes(stat.id) ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'}`}>
                               {localProfile.trackedStats.includes(stat.id) && <Check size={14} className="text-white" strokeWidth={3} />}
                             </div>
-                            <span className="text-sm font-semibold text-slate-700">{stat.label}</span>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-semibold text-slate-700">{stat.label}</span>
+                              {stat.isCustom && <span className="text-[8px] font-black text-indigo-500 uppercase tracking-widest leading-none mt-0.5">Custom Stat</span>}
+                            </div>
                           </div>
                           <input type="checkbox" className="hidden" checked={localProfile.trackedStats.includes(stat.id)} onChange={() => toggleStat(stat.id)} />
                         </label>

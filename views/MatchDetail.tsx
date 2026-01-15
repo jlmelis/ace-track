@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Plus, ChevronRight, Download, Activity, Target, Shield, Zap, LayoutGrid, Trash2 } from 'lucide-react';
-import { Match, PlayerProfile, DEFAULT_STATS, StatCategory, CATEGORY_ORDER } from '../types.ts';
+import { Match, PlayerProfile, StatDefinition, StatCategory, CATEGORY_ORDER } from '../types.ts';
 
 interface MatchDetailProps {
   match: Match;
@@ -9,6 +9,7 @@ interface MatchDetailProps {
   onAddSet: () => void;
   onSelectSet: (id: string) => void;
   onDeleteSet: (id: string) => void;
+  allStats: StatDefinition[];
 }
 
 const CATEGORY_ICONS: Record<StatCategory, React.ReactNode> = {
@@ -27,7 +28,7 @@ const CATEGORY_COLORS: Record<StatCategory, string> = {
   'Blocking': 'text-slate-600 bg-slate-50',
 };
 
-const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAddSet, onSelectSet, onDeleteSet }) => {
+const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAddSet, onSelectSet, onDeleteSet, allStats }) => {
   const getTotals = () => {
     const totals: Record<string, number> = {};
     match.sets.forEach(set => {
@@ -52,7 +53,7 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
     const headers = ['Set', 'Category', 'Metric', 'Timestamp'];
     const rows = match.sets.flatMap(set => 
       set.logs.map(log => {
-        const statDef = DEFAULT_STATS.find(s => s.id === log.statId);
+        const statDef = allStats.find(s => s.id === log.statId);
         return [
           `Set ${set.setNumber}`,
           statDef?.category || 'Other',
@@ -94,7 +95,7 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
       </div>
 
       <div className="p-4 space-y-8">
-        {/* 1. Sets Section (Moved to Top) */}
+        {/* 1. Sets Section */}
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Match Sets</h3>
@@ -147,14 +148,13 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
           </div>
         </section>
 
-        {/* 2. Cumulative Stats Section (Moved to Bottom and Smaller) */}
+        {/* 2. Cumulative Stats Section */}
         {match.sets.length > 0 && (
           <section className="space-y-4 pt-4 border-t border-slate-100">
             <div className="px-1">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Full Match Summary</h3>
             </div>
 
-            {/* Hitting Percentage Highlight (Keep distinct but slightly smaller) */}
             {totalAttacks > 0 && (
               <div className="bg-slate-900 text-white rounded-2xl p-4 flex items-center justify-between shadow-lg shadow-slate-200 overflow-hidden relative">
                 <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-indigo-500/20 to-transparent pointer-events-none" />
@@ -170,10 +170,9 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
               </div>
             )}
 
-            {/* Comprehensive Stats Grid */}
             <div className="space-y-4">
               {CATEGORY_ORDER.map(cat => {
-                const catStats = DEFAULT_STATS.filter(s => s.category === cat && totals[s.id]);
+                const catStats = allStats.filter(s => s.category === cat && totals[s.id]);
                 if (catStats.length === 0) return null;
 
                 return (
