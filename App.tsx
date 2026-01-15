@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, DEFAULT_ALIASES, StatLog, StatDefinition } from './types.ts';
-import { RefreshCw, X } from 'lucide-react';
+import { RefreshCw, X, Loader2 } from 'lucide-react';
+import { saveAppState, getAppState } from './db.ts';
 
 // Components
 import Layout from './components/Layout.tsx';
@@ -11,47 +12,71 @@ import SetTracker from './views/SetTracker.tsx';
 import ProfileSettings from './views/ProfileSettings.tsx';
 import OnboardingModal from './components/OnboardingModal.tsx';
 
-const STORAGE_KEY = 'acetrack_v1_data';
+const STORAGE_KEY_OLD = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
-const VERSION = 'v15';
+const VERSION = 'v16';
 
 const App: React.FC = () => {
-  // Navigation State
+  // Navigation & UI State
   const [currentView, setCurrentView] = useState<'dashboard' | 'event' | 'match' | 'set' | 'settings'>('dashboard');
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
   const [activeSetId, setActiveSetId] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // PWA Update State
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
 
   // App Data State
-  const [data, setData] = useState<AppState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (!parsed.profile.categoryAliases) {
-        parsed.profile.categoryAliases = { ...DEFAULT_ALIASES };
-      }
-      if (!parsed.customStats) {
-        parsed.customStats = [];
-      }
-      return parsed;
+  const [data, setData] = useState<AppState>({
+    events: [],
+    customStats: [],
+    profile: {
+      name: 'My Daughter',
+      number: '10',
+      position: 'Outside Hitter',
+      trackedStats: DEFAULT_STATS.map(s => s.id),
+      categoryAliases: { ...DEFAULT_ALIASES }
     }
-    return {
-      events: [],
-      customStats: [],
-      profile: {
-        name: 'My Daughter',
-        number: '10',
-        position: 'Outside Hitter',
-        trackedStats: DEFAULT_STATS.map(s => s.id),
-        categoryAliases: { ...DEFAULT_ALIASES }
+  });
+
+  // Initial Load & Migration
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const dbData = await getAppState();
+        const localDataRaw = localStorage.getItem(STORAGE_KEY_OLD);
+        
+        if (dbData) {
+          setData(dbData);
+          // If we have both, migration already happened, but let's clear local just in case
+          if (localDataRaw) localStorage.removeItem(STORAGE_KEY_OLD);
+        } else if (localDataRaw) {
+          // Migration path
+          const parsed = JSON.parse(localDataRaw);
+          setData(parsed);
+          await saveAppState(parsed);
+          localStorage.removeItem(STORAGE_KEY_OLD);
+        }
+      } catch (err) {
+        console.error("Failed to load database", err);
+      } finally {
+        setIsLoading(false);
       }
     };
-  });
+    loadData();
+  }, []);
+
+  // Persistence Sync (Debounced for performance)
+  useEffect(() => {
+    if (isLoading) return;
+    const timeout = setTimeout(() => {
+      saveAppState(data).catch(err => console.error("Database write error", err));
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [data, isLoading]);
 
   const allStats = useMemo(() => [...DEFAULT_STATS, ...data.customStats], [data.customStats]);
 
@@ -60,16 +85,13 @@ const App: React.FC = () => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(reg => {
         reg.update();
-
         const checkWorker = (worker: ServiceWorker | null) => {
           if (worker && worker.state === 'installed') {
             setWaitingWorker(worker);
             setShowUpdatePrompt(true);
           }
         };
-
         checkWorker(reg.waiting);
-
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           if (newWorker) {
@@ -81,12 +103,6 @@ const App: React.FC = () => {
             });
           }
         });
-
-        const checkUpdate = () => {
-          reg.update().catch(err => console.debug('SW update check failed', err));
-        };
-        window.addEventListener('focus', checkUpdate);
-        return () => window.removeEventListener('focus', checkUpdate);
       });
 
       let refreshing = false;
@@ -115,10 +131,6 @@ const App: React.FC = () => {
     localStorage.setItem(ONBOARDING_KEY, 'true');
     setShowOnboarding(false);
   };
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [data]);
 
   const activeEvent = useMemo(() => data.events.find(e => e.id === activeEventId), [data.events, activeEventId]);
   const activeMatch = useMemo(() => activeEvent?.matches.find(m => m.id === activeMatchId), [activeEvent, activeMatchId]);
@@ -275,6 +287,15 @@ const App: React.FC = () => {
   const updateProfile = (profile: PlayerProfile) => setData(prev => ({ ...prev, profile }));
 
   const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-slate-400 space-y-4">
+          <Loader2 className="animate-spin" size={40} />
+          <p className="text-sm font-bold uppercase tracking-widest">Opening Database...</p>
+        </div>
+      );
+    }
+
     switch (currentView) {
       case 'dashboard':
         return <Dashboard events={data.events} onAddEvent={addEvent} onSelectEvent={(id) => { setActiveEventId(id); setCurrentView('event'); }} onDeleteEvent={deleteEvent} />;
