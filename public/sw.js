@@ -1,5 +1,7 @@
 
-const CACHE_NAME = 'acetrack-v6'; // Bumped version for update trigger
+const CACHE_NAME = 'acetrack-v8'; 
+const LAST_UPDATED = '2025-05-20T12:05:00Z'; // Fresh timestamp to force update
+
 const ASSETS = [
   '/',
   '/index.html',
@@ -7,8 +9,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  // REMOVED self.skipWaiting() from here. 
-  // We want the worker to stay in 'waiting' state so the UI can show the update prompt.
+  // We do NOT call self.skipWaiting() here so the UI can prompt the user.
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);

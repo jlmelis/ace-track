@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle, ChevronDown, ChevronUp, Type } from 'lucide-react';
+import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import { PlayerProfile, DEFAULT_STATS, StatCategory, AppState, DEFAULT_ALIASES, CATEGORY_ORDER } from '../types';
 
 interface ProfileSettingsProps {
@@ -12,6 +12,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
   const [localProfile, setLocalProfile] = useState<PlayerProfile>({ ...profile });
   const [showSaved, setShowSaved] = useState(false);
   const [storageUsage, setStorageUsage] = useState<string>('0 KB');
+  const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'current' | 'found'>('idle');
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({
     'Attacking': true 
   });
@@ -26,6 +27,23 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
     const sizeInBytes = new Blob([data]).size;
     const sizeInKb = (sizeInBytes / 1024).toFixed(2);
     setStorageUsage(`${sizeInKb} KB`);
+  };
+
+  const handleManualUpdateCheck = async () => {
+    if (!('serviceWorker' in navigator)) return;
+    setUpdateStatus('checking');
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) {
+        await reg.update();
+        if (!reg.installing && !reg.waiting) {
+          setUpdateStatus('current');
+          setTimeout(() => setUpdateStatus('idle'), 3000);
+        }
+      }
+    } catch (e) {
+      setUpdateStatus('idle');
+    }
   };
 
   const toggleStat = (id: string) => {
@@ -132,7 +150,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
           </div>
         </section>
 
-        {/* Alias Configuration Section */}
         <section className="space-y-4">
           <div className="px-1">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Navigation Aliases</h3>
@@ -193,13 +210,33 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
           </div>
         </section>
 
+        <section className="space-y-4">
+          <div className="px-1 flex items-center justify-between">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Application</h3>
+            <button 
+              onClick={handleManualUpdateCheck}
+              disabled={updateStatus === 'checking'}
+              className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-1 rounded transition-colors active:bg-indigo-100 disabled:opacity-50"
+            >
+              <RefreshCw size={12} className={updateStatus === 'checking' ? 'animate-spin' : ''} />
+              {updateStatus === 'checking' ? 'Checking...' : updateStatus === 'current' ? 'App Up To Date' : 'Check for Updates'}
+            </button>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+             <div className="flex items-center gap-3 text-slate-600">
+               <div className="bg-slate-100 p-2 rounded-lg"><Database size={18} /></div>
+               <div>
+                  <h4 className="text-xs font-bold text-slate-800">Local Cache</h4>
+                  <p className="text-[10px] text-slate-400 font-medium">Offline storage for your data</p>
+               </div>
+             </div>
+             <span className="text-xs font-black text-slate-800 bg-slate-50 px-2.5 py-1 rounded border border-slate-100">{storageUsage}</span>
+          </div>
+        </section>
+
         <section className="space-y-4 pt-4 border-t border-slate-200">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Storage & Privacy</h3>
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1">Data Management</h3>
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-600"><Database size={16} /><span className="text-xs font-bold uppercase">Device Storage</span></div>
-              <span className="text-xs font-black text-slate-800 bg-white px-2 py-1 rounded border border-slate-200">{storageUsage}</span>
-            </div>
             <div className="grid grid-cols-2 gap-3">
               <button onClick={handleBackup} className="flex items-center justify-center gap-2 bg-white border border-slate-200 py-3 rounded-xl font-bold text-xs text-slate-700 active:bg-slate-100 shadow-sm"><Download size={16} className="text-indigo-600" />Backup Data</button>
               <button onClick={handleRestoreClick} className="flex items-center justify-center gap-2 bg-white border border-slate-200 py-3 rounded-xl font-bold text-xs text-slate-700 active:bg-slate-100 shadow-sm"><Upload size={16} className="text-indigo-600" />Restore Data</button>
