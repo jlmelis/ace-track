@@ -323,21 +323,24 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
                       </div>
                       
                       <div className="grid gap-2">
-                        {catStats.map(stat => (
-                          <div key={stat.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50 last:border-0">
-                            <label htmlFor={`stat-${stat.id}`} className="flex-1 text-xs font-bold text-slate-700 cursor-pointer">
-                              {stat.label}
-                              {stat.isCustom && <span className="ml-2 text-[7px] bg-indigo-100 text-indigo-600 px-1 py-0.5 rounded font-black uppercase">Custom</span>}
-                            </label>
-                            <button
-                              id={`stat-${stat.id}`}
-                              onClick={() => toggleStat(stat.id)}
-                              className={`w-9 h-5 rounded-full transition-all relative ${localProfile.trackedStats.includes(stat.id) ? 'bg-indigo-600 shadow-inner' : 'bg-slate-200'}`}
-                            >
-                              <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${localProfile.trackedStats.includes(stat.id) ? 'left-4.5' : 'left-0.5'}`} />
-                            </button>
-                          </div>
-                        ))}
+                        {catStats.map(stat => {
+                          const isTracked = localProfile.trackedStats.includes(stat.id);
+                          return (
+                            <div key={stat.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50 last:border-0">
+                              <label htmlFor={`stat-${stat.id}`} className="flex-1 text-xs font-bold text-slate-700 cursor-pointer">
+                                {stat.label}
+                                {stat.isCustom && <span className="ml-2 text-[7px] bg-indigo-100 text-indigo-600 px-1 py-0.5 rounded font-black uppercase">Custom</span>}
+                              </label>
+                              <button
+                                id={`stat-${stat.id}`}
+                                onClick={() => toggleStat(stat.id)}
+                                className={`w-10 h-6 rounded-full transition-colors duration-200 relative shrink-0 ${isTracked ? 'bg-indigo-600 shadow-inner' : 'bg-slate-200'}`}
+                              >
+                                <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out ${isTracked ? 'translate-x-4' : 'translate-x-0'}`} />
+                              </button>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -368,7 +371,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
                   <p className="text-[10px] text-slate-400 font-medium">IndexedDB - High Capacity Engine</p>
                </div>
              </div>
-             <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded border border-indigo-100">v16 Engine</span>
+             <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded border border-indigo-100">v18 Engine</span>
           </div>
         </section>
 
