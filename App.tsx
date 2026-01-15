@@ -13,7 +13,7 @@ import OnboardingModal from './components/OnboardingModal.tsx';
 
 const STORAGE_KEY = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
-const VERSION = 'v11';
+const VERSION = 'v12';
 
 const App: React.FC = () => {
   // Navigation State
@@ -35,11 +35,6 @@ const App: React.FC = () => {
       if (!parsed.profile.categoryAliases) {
         parsed.profile.categoryAliases = { ...DEFAULT_ALIASES };
       }
-      // Migration: Ensure any new default stats are included if the user has data but missing keys
-      const allStatIds = DEFAULT_STATS.map(s => s.id);
-      const currentTracked = parsed.profile.trackedStats || [];
-      // Note: We don't force-add new stats to tracked list for existing users 
-      // so they aren't surprised by UI changes, but they are available in settings.
       return parsed;
     }
     return {
