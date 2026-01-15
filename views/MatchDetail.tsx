@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Plus, ChevronRight, Download, Activity, Target, Shield, Zap, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Plus, ChevronRight, Download, Activity, Target, Shield, Zap, LayoutGrid, Trash2 } from 'lucide-react';
 import { Match, PlayerProfile, DEFAULT_STATS, StatCategory, CATEGORY_ORDER } from '../types.ts';
 
 interface MatchDetailProps {
@@ -8,6 +8,7 @@ interface MatchDetailProps {
   onBack: () => void;
   onAddSet: () => void;
   onSelectSet: (id: string) => void;
+  onDeleteSet: (id: string) => void;
 }
 
 const CATEGORY_ICONS: Record<StatCategory, React.ReactNode> = {
@@ -26,7 +27,7 @@ const CATEGORY_COLORS: Record<StatCategory, string> = {
   'Blocking': 'text-slate-600 bg-slate-50',
 };
 
-const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAddSet, onSelectSet }) => {
+const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAddSet, onSelectSet, onDeleteSet }) => {
   const getTotals = () => {
     const totals: Record<string, number> = {};
     match.sets.forEach(set => {
@@ -113,24 +114,34 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
               </div>
             ) : (
               match.sets.map(set => (
-                <button 
+                <div 
                   key={set.id}
-                  onClick={() => onSelectSet(set.id)}
-                  className="bg-white border border-slate-100 rounded-2xl p-4 text-left flex items-center justify-between shadow-sm active:bg-slate-50 transition-colors group"
+                  className="bg-white border border-slate-100 rounded-2xl overflow-hidden text-left flex items-stretch shadow-sm active:scale-[0.99] transition-transform group"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm ${set.isCompleted ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600'}`}>
-                      {set.setNumber}
+                  <button 
+                    onClick={() => onSelectSet(set.id)}
+                    className="flex-1 p-4 text-left flex items-center justify-between active:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm ${set.isCompleted ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                        {set.setNumber}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-800">Set {set.setNumber}</h4>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                          {set.logs.length} Actions • {set.isCompleted ? 'Completed' : 'Live'}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-bold text-slate-800">Set {set.setNumber}</h4>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                        {set.logs.length} Actions • {set.isCompleted ? 'Completed' : 'Live'}
-                      </p>
-                    </div>
-                  </div>
-                  <ChevronRight className="text-slate-300 group-active:text-indigo-400 transition-colors" size={20} />
-                </button>
+                    <ChevronRight className="text-slate-300 group-active:text-indigo-400 transition-colors" size={20} />
+                  </button>
+                  <button 
+                    onClick={() => onDeleteSet(set.id)}
+                    className="bg-slate-50 px-4 border-l border-slate-100 text-slate-400 active:text-red-500 active:bg-red-50 transition-colors flex items-center justify-center"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               ))
             )}
           </div>

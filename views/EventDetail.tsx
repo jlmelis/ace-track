@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Plus, ChevronRight, Activity, Calendar, Download } from 'lucide-react';
+import { ArrowLeft, Plus, ChevronRight, Activity, Calendar, Download, Trash2 } from 'lucide-react';
 import { Event, DEFAULT_STATS } from '../types';
 
 interface EventDetailProps {
@@ -7,9 +7,10 @@ interface EventDetailProps {
   onBack: () => void;
   onAddMatch: (opponent: string) => void;
   onSelectMatch: (id: string) => void;
+  onDeleteMatch: (id: string) => void;
 }
 
-const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, onSelectMatch }) => {
+const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, onSelectMatch, onDeleteMatch }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [opponent, setOpponent] = useState('');
 
@@ -138,25 +139,35 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
             </div>
           ) : (
             event.matches.map(match => (
-              <button 
+              <div 
                 key={match.id}
-                onClick={() => onSelectMatch(match.id)}
-                className="bg-white border border-slate-200 rounded-xl p-4 text-left flex items-center justify-between shadow-sm active:bg-slate-50 transition-colors group"
+                className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.98] transition-transform flex"
               >
-                <div className="space-y-1">
-                  <h4 className="font-bold text-slate-800">vs {match.opponent}</h4>
-                  <div className="flex items-center gap-3 text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <Calendar size={12} />
-                      {match.date}
-                    </span>
-                    <span className="flex items-center gap-1 text-indigo-600 font-medium">
-                      {match.sets.length} Sets
-                    </span>
+                <button 
+                  onClick={() => onSelectMatch(match.id)}
+                  className="flex-1 p-4 text-left flex items-center justify-between group"
+                >
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-slate-800">vs {match.opponent}</h4>
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={12} />
+                        {match.date}
+                      </span>
+                      <span className="flex items-center gap-1 text-indigo-600 font-medium">
+                        {match.sets.length} Sets
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <ChevronRight className="text-slate-300 group-active:text-indigo-400" size={20} />
-              </button>
+                  <ChevronRight className="text-slate-300 group-active:text-indigo-400" size={20} />
+                </button>
+                <button 
+                  onClick={() => onDeleteMatch(match.id)}
+                  className="bg-slate-50 px-4 border-l border-slate-100 text-slate-400 active:text-red-500 active:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             ))
           )}
         </div>

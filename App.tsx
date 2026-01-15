@@ -13,7 +13,7 @@ import OnboardingModal from './components/OnboardingModal.tsx';
 
 const STORAGE_KEY = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
-const VERSION = 'v12';
+const VERSION = 'v13';
 
 const App: React.FC = () => {
   // Navigation State
@@ -145,6 +145,23 @@ const App: React.FC = () => {
     }));
   };
 
+  const deleteMatch = (eventId: string, matchId: string) => {
+    if (window.confirm('Delete this match and all its sets?')) {
+      setData(prev => ({
+        ...prev,
+        events: prev.events.map(e => e.id === eventId ? {
+          ...e,
+          matches: e.matches.filter(m => m.id !== matchId)
+        } : e)
+      }));
+      if (activeMatchId === matchId) {
+        setActiveMatchId(null);
+        setActiveSetId(null);
+        setCurrentView('event');
+      }
+    }
+  };
+
   const addSet = (eventId: string, matchId: string) => {
     const match = data.events.find(e => e.id === eventId)?.matches.find(m => m.id === matchId);
     const newSet: SetData = { id: crypto.randomUUID(), setNumber: (match?.sets.length || 0) + 1, logs: [], isCompleted: false };
@@ -157,6 +174,25 @@ const App: React.FC = () => {
     }));
     setActiveSetId(newSet.id);
     setCurrentView('set');
+  };
+
+  const deleteSet = (eventId: string, matchId: string, setId: string) => {
+    if (window.confirm('Delete this set?')) {
+      setData(prev => ({
+        ...prev,
+        events: prev.events.map(e => e.id === eventId ? {
+          ...e,
+          matches: e.matches.map(m => m.id === matchId ? {
+            ...m,
+            sets: m.sets.filter(s => s.id !== setId)
+          } : m)
+        } : e)
+      }));
+      if (activeSetId === setId) {
+        setActiveSetId(null);
+        setCurrentView('match');
+      }
+    }
   };
 
   const recordStat = (statId: string) => {
@@ -209,9 +245,9 @@ const App: React.FC = () => {
       case 'dashboard':
         return <Dashboard events={data.events} onAddEvent={addEvent} onSelectEvent={(id) => { setActiveEventId(id); setCurrentView('event'); }} onDeleteEvent={deleteEvent} />;
       case 'event':
-        return activeEvent ? <EventDetail event={activeEvent} onBack={() => setCurrentView('dashboard')} onAddMatch={(opp) => addMatch(activeEvent.id, opp)} onSelectMatch={(id) => { setActiveMatchId(id); setCurrentView('match'); }} /> : null;
+        return activeEvent ? <EventDetail event={activeEvent} onBack={() => setCurrentView('dashboard')} onAddMatch={(opp) => addMatch(activeEvent.id, opp)} onSelectMatch={(id) => { setActiveMatchId(id); setCurrentView('match'); }} onDeleteMatch={(mid) => deleteMatch(activeEvent.id, mid)} /> : null;
       case 'match':
-        return activeMatch && activeEvent ? <MatchDetail match={activeMatch} profile={data.profile} onBack={() => setCurrentView('event')} onAddSet={() => addSet(activeEvent.id, activeMatch.id)} onSelectSet={(id) => { setActiveSetId(id); setCurrentView('set'); }} /> : null;
+        return activeMatch && activeEvent ? <MatchDetail match={activeMatch} profile={data.profile} onBack={() => setCurrentView('event')} onAddSet={() => addSet(activeEvent.id, activeMatch.id)} onSelectSet={(id) => { setActiveSetId(id); setCurrentView('set'); }} onDeleteSet={(sid) => deleteSet(activeEvent.id, activeMatch.id, sid)} /> : null;
       case 'set':
         return activeSet && activeMatch && activeEvent ? <SetTracker set={activeSet} match={activeMatch} profile={data.profile} onBack={() => setCurrentView('match')} onRecord={recordStat} onUndo={undoLastStat} onToggleComplete={toggleSetComplete} /> : null;
       case 'settings':
