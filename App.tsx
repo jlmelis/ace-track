@@ -14,7 +14,7 @@ import OnboardingModal from './components/OnboardingModal.tsx';
 
 const STORAGE_KEY_OLD = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
-const VERSION = 'v16';
+const VERSION = 'v17';
 
 const App: React.FC = () => {
   // Navigation & UI State
