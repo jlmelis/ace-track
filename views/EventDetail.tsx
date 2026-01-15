@@ -5,7 +5,7 @@ import { Event, DEFAULT_STATS } from '../types';
 interface EventDetailProps {
   event: Event;
   onBack: () => void;
-  onAddMatch: (opponent: string) => void;
+  onAddMatch: (opponent: string, date: string) => void;
   onSelectMatch: (id: string) => void;
   onDeleteMatch: (id: string) => void;
 }
@@ -13,11 +13,12 @@ interface EventDetailProps {
 const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, onSelectMatch, onDeleteMatch }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [opponent, setOpponent] = useState('');
+  const [matchDate, setMatchDate] = useState(event.date); // Default to event start date
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (opponent.trim()) {
-      onAddMatch(opponent);
+      onAddMatch(opponent, matchDate);
       setOpponent('');
       setIsAdding(false);
     }
@@ -60,6 +61,15 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
     document.body.removeChild(link);
   };
 
+  const formatTournamentDate = () => {
+    const start = new Date(event.date + 'T00:00:00');
+    if (event.endDate) {
+      const end = new Date(event.endDate + 'T00:00:00');
+      return `${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+    return start.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
   return (
     <div className="animate-in slide-in-from-right-4 duration-200">
       <div className="bg-white p-4 border-b flex items-center justify-between sticky sub-header-top z-40 shadow-sm">
@@ -70,7 +80,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
           <div className="min-w-0">
             <h2 className="text-lg font-bold text-slate-800 truncate leading-tight">{event.name}</h2>
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              <span>{new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              <span>{formatTournamentDate()}</span>
               <span className="opacity-30">•</span>
               <span className="truncate">{event.location || 'No Location'}</span>
             </div>
@@ -101,15 +111,28 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
 
         {isAdding && (
           <form onSubmit={handleSubmit} className="bg-white border border-indigo-100 rounded-xl p-4 shadow-sm shadow-indigo-50 space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Opponent Team</label>
-              <input 
-                autoFocus
-                value={opponent}
-                onChange={(e) => setOpponent(e.target.value)}
-                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
-                placeholder="e.g. Eagles Academy"
-              />
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Opponent Team</label>
+                <input 
+                  autoFocus
+                  required
+                  value={opponent}
+                  onChange={(e) => setOpponent(e.target.value)}
+                  className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+                  placeholder="e.g. Eagles Academy"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Match Date</label>
+                <input 
+                  type="date"
+                  required
+                  value={matchDate}
+                  onChange={(e) => setMatchDate(e.target.value)}
+                  className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+                />
+              </div>
             </div>
             <div className="flex gap-2">
               <button 
@@ -138,7 +161,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
               <p className="text-sm text-slate-500 font-medium">No matches tracked for this event.</p>
             </div>
           ) : (
-            event.matches.map(match => (
+            [...event.matches].sort((a,b) => b.date.localeCompare(a.date)).map(match => (
               <div 
                 key={match.id}
                 className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.98] transition-transform flex"
@@ -152,7 +175,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
                     <div className="flex items-center gap-3 text-xs text-slate-500">
                       <span className="flex items-center gap-1">
                         <Calendar size={12} />
-                        {match.date}
+                        {new Date(match.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </span>
                       <span className="flex items-center gap-1 text-indigo-600 font-medium">
                         {match.sets.length} Sets

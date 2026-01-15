@@ -40,7 +40,8 @@ export interface Event {
   id: string;
   name: string;
   location: string;
-  date: string;
+  date: string; // Start date
+  endDate?: string; // Optional end date
   matches: Match[];
 }
 

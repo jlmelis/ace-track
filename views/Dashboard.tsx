@@ -4,7 +4,7 @@ import { Event } from '../types';
 
 interface DashboardProps {
   events: Event[];
-  onAddEvent: (name: string, loc: string, date: string) => void;
+  onAddEvent: (name: string, loc: string, date: string, endDate?: string) => void;
   onSelectEvent: (id: string) => void;
   onDeleteEvent: (id: string) => void;
 }
@@ -24,16 +24,32 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
   };
 
   const [newDate, setNewDate] = useState(getLocalDate());
+  const [newEndDate, setNewEndDate] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newName.trim()) {
-      onAddEvent(newName, newLoc, newDate);
+      onAddEvent(newName, newLoc, newDate, newEndDate || undefined);
       setNewName('');
       setNewLoc('');
       setNewDate(getLocalDate());
+      setNewEndDate('');
       setIsAdding(false);
     }
+  };
+
+  const formatEventDate = (event: Event) => {
+    const start = new Date(event.date + 'T00:00:00');
+    const startStr = start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    
+    if (event.endDate) {
+      const end = new Date(event.endDate + 'T00:00:00');
+      const endStr = end.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      // If same month/year, could condense but simple is safe
+      return `${startStr} - ${endStr}`;
+    }
+    
+    return start.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   return (
@@ -61,23 +77,32 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
               placeholder="e.g. State Championship"
             />
           </div>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</label>
+            <input 
+              value={newLoc}
+              onChange={(e) => setNewLoc(e.target.value)}
+              className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              placeholder="e.g. City Arena"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</label>
-              <input 
-                value={newLoc}
-                onChange={(e) => setNewLoc(e.target.value)}
-                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
-                placeholder="e.g. City Arena"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</label>
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Start Date</label>
               <input 
                 type="date"
                 required
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
+                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">End Date (Optional)</label>
+              <input 
+                type="date"
+                value={newEndDate}
+                onChange={(e) => setNewEndDate(e.target.value)}
                 className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
               />
             </div>
@@ -124,7 +149,7 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
                     <span className="flex items-center gap-1">
                       <Calendar size={12} className="text-indigo-500" />
-                      {new Date(event.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {formatEventDate(event)}
                     </span>
                     <span className="flex items-center gap-1">
                       <MapPin size={12} />

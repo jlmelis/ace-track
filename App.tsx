@@ -13,7 +13,7 @@ import OnboardingModal from './components/OnboardingModal.tsx';
 
 const STORAGE_KEY = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
-const VERSION = 'v13';
+const VERSION = 'v14';
 
 const App: React.FC = () => {
   // Navigation State
@@ -53,7 +53,6 @@ const App: React.FC = () => {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(reg => {
-        // Force an immediate check on app load
         reg.update();
 
         const checkWorker = (worker: ServiceWorker | null) => {
@@ -63,7 +62,6 @@ const App: React.FC = () => {
           }
         };
 
-        // Check current states
         checkWorker(reg.waiting);
 
         reg.addEventListener('updatefound', () => {
@@ -120,8 +118,8 @@ const App: React.FC = () => {
   const activeMatch = useMemo(() => activeEvent?.matches.find(m => m.id === activeMatchId), [activeEvent, activeMatchId]);
   const activeSet = useMemo(() => activeMatch?.sets.find(s => s.id === activeSetId), [activeMatch, activeSetId]);
 
-  const addEvent = (name: string, location: string, date: string) => {
-    const newEvent: Event = { id: crypto.randomUUID(), name, location, date, matches: [] };
+  const addEvent = (name: string, location: string, date: string, endDate?: string) => {
+    const newEvent: Event = { id: crypto.randomUUID(), name, location, date, endDate, matches: [] };
     setData(prev => ({ ...prev, events: [newEvent, ...prev.events] }));
   };
 
@@ -137,8 +135,8 @@ const App: React.FC = () => {
     }
   };
 
-  const addMatch = (eventId: string, opponent: string) => {
-    const newMatch: Match = { id: crypto.randomUUID(), opponent, date: new Date().toLocaleDateString(), sets: [] };
+  const addMatch = (eventId: string, opponent: string, matchDate: string) => {
+    const newMatch: Match = { id: crypto.randomUUID(), opponent, date: matchDate, sets: [] };
     setData(prev => ({
       ...prev,
       events: prev.events.map(e => e.id === eventId ? { ...e, matches: [...e.matches, newMatch] } : e)
@@ -245,7 +243,7 @@ const App: React.FC = () => {
       case 'dashboard':
         return <Dashboard events={data.events} onAddEvent={addEvent} onSelectEvent={(id) => { setActiveEventId(id); setCurrentView('event'); }} onDeleteEvent={deleteEvent} />;
       case 'event':
-        return activeEvent ? <EventDetail event={activeEvent} onBack={() => setCurrentView('dashboard')} onAddMatch={(opp) => addMatch(activeEvent.id, opp)} onSelectMatch={(id) => { setActiveMatchId(id); setCurrentView('match'); }} onDeleteMatch={(mid) => deleteMatch(activeEvent.id, mid)} /> : null;
+        return activeEvent ? <EventDetail event={activeEvent} onBack={() => setCurrentView('dashboard')} onAddMatch={(opp, mdate) => addMatch(activeEvent.id, opp, mdate)} onSelectMatch={(id) => { setActiveMatchId(id); setCurrentView('match'); }} onDeleteMatch={(mid) => deleteMatch(activeEvent.id, mid)} /> : null;
       case 'match':
         return activeMatch && activeEvent ? <MatchDetail match={activeMatch} profile={data.profile} onBack={() => setCurrentView('event')} onAddSet={() => addSet(activeEvent.id, activeMatch.id)} onSelectSet={(id) => { setActiveSetId(id); setCurrentView('set'); }} onDeleteSet={(sid) => deleteSet(activeEvent.id, activeMatch.id, sid)} /> : null;
       case 'set':
