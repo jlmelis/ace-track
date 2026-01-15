@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +22,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
+  <!-- App Version: acetrack-v10-20250520 -->
+  
   <style>
     :root {
       --header-base-height: 60px;
@@ -41,12 +44,10 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
     
-    /* Offset for content to sit exactly below the fixed header */
     .content-top-offset {
       padding-top: calc(var(--header-base-height) + env(safe-area-inset-top));
     }
 
-    /* Offset for sub-headers that stick below the main header */
     .sub-header-top {
       top: calc(var(--header-base-height) + env(safe-area-inset-top));
     }
@@ -71,7 +72,7 @@
   }
   </script>
 </head>
-<body>
+<body data-version="10">
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

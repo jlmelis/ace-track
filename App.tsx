@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, DEFAULT_ALIASES, StatLog } from './types.ts';
 import { RefreshCw, X } from 'lucide-react';
@@ -31,7 +32,6 @@ const App: React.FC = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Migration: Add aliases if missing
       if (!parsed.profile.categoryAliases) {
         parsed.profile.categoryAliases = { ...DEFAULT_ALIASES };
       }
@@ -53,18 +53,23 @@ const App: React.FC = () => {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(reg => {
-        // Check if there's already a worker waiting from a previous session
-        if (reg.waiting) {
-          setWaitingWorker(reg.waiting);
-          setShowUpdatePrompt(true);
-        }
+        // Force an immediate check on app load
+        reg.update();
 
-        // Listen for new updates found
+        const checkWorker = (worker: ServiceWorker | null) => {
+          if (worker && worker.state === 'installed') {
+            setWaitingWorker(worker);
+            setShowUpdatePrompt(true);
+          }
+        };
+
+        // Check current states
+        checkWorker(reg.waiting);
+
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
-              // Only show the prompt when the new worker has finished installing (it's now waiting)
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 setWaitingWorker(newWorker);
                 setShowUpdatePrompt(true);
@@ -73,11 +78,9 @@ const App: React.FC = () => {
           }
         });
 
-        // Periodic check for updates when the app is focused
         const checkUpdate = () => {
           reg.update().catch(err => console.debug('SW update check failed', err));
         };
-
         window.addEventListener('focus', checkUpdate);
         return () => window.removeEventListener('focus', checkUpdate);
       });
@@ -223,13 +226,13 @@ const App: React.FC = () => {
       {renderContent()}
       {showOnboarding && <OnboardingModal onDismiss={dismissOnboarding} />}
       {showUpdatePrompt && (
-        <div className="fixed bottom-20 left-4 right-4 z-[200] animate-in slide-in-from-bottom-4 duration-500">
+        <div className="fixed bottom-24 left-4 right-4 z-[200] animate-in slide-in-from-bottom-4 duration-500">
           <div className="bg-indigo-600 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 border border-indigo-500">
             <div className="flex items-center gap-3">
               <div className="bg-white/20 p-2 rounded-xl text-white animate-pulse"><RefreshCw size={20} /></div>
               <div>
                 <h4 className="text-sm font-bold text-white leading-none">Update Available</h4>
-                <p className="text-[10px] text-indigo-100 mt-1 uppercase tracking-wider font-medium">New features are ready!</p>
+                <p className="text-[10px] text-indigo-100 mt-1 uppercase tracking-wider font-medium">AceTrack {CACHE_NAME}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">

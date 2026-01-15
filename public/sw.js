@@ -1,6 +1,6 @@
 
-const CACHE_NAME = 'acetrack-v8'; 
-const LAST_UPDATED = '2025-05-20T12:05:00Z'; // Fresh timestamp to force update
+const CACHE_NAME = 'acetrack-v10'; 
+const LAST_UPDATED = '2025-05-20T12:15:00Z'; // Fresh timestamp for byte-level change
 
 const ASSETS = [
   '/',
@@ -9,7 +9,6 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  // We do NOT call self.skipWaiting() here so the UI can prompt the user.
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
@@ -28,7 +27,6 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Listen for the message to skip waiting from the UI prompt
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();

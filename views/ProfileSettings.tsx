@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import { PlayerProfile, DEFAULT_STATS, StatCategory, AppState, DEFAULT_ALIASES, CATEGORY_ORDER } from '../types';
@@ -39,6 +40,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
         if (!reg.installing && !reg.waiting) {
           setUpdateStatus('current');
           setTimeout(() => setUpdateStatus('idle'), 3000);
+        } else if (reg.waiting) {
+          setUpdateStatus('found');
         }
       }
     } catch (e) {
@@ -219,7 +222,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
               className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-1 rounded transition-colors active:bg-indigo-100 disabled:opacity-50"
             >
               <RefreshCw size={12} className={updateStatus === 'checking' ? 'animate-spin' : ''} />
-              {updateStatus === 'checking' ? 'Checking...' : updateStatus === 'current' ? 'App Up To Date' : 'Check for Updates'}
+              {updateStatus === 'checking' ? 'Checking...' : updateStatus === 'current' ? 'Up To Date' : updateStatus === 'found' ? 'Update Found!' : 'Check for Updates'}
             </button>
           </div>
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
