@@ -62,22 +62,26 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
   return (
     <div className="animate-in slide-in-from-right-4 duration-200">
       <div className="bg-white p-4 border-b flex items-center justify-between sticky sub-header-top z-40 shadow-sm">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full">
+        <div className="flex items-center gap-4 min-w-0">
+          <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full shrink-0">
             <ArrowLeft size={24} />
           </button>
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-slate-800 truncate">{event.name}</h2>
-            <p className="text-xs text-slate-500 truncate">{event.location}</p>
+            <h2 className="text-lg font-bold text-slate-800 truncate leading-tight">{event.name}</h2>
+            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <span>{new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              <span className="opacity-30">•</span>
+              <span className="truncate">{event.location || 'No Location'}</span>
+            </div>
           </div>
         </div>
         {event.matches.some(m => m.sets.some(s => s.logs.length > 0)) && (
           <button 
             onClick={handleExportTournament}
-            className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs bg-emerald-50 px-3 py-2 rounded-lg active:scale-95 transition-transform"
+            className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs bg-emerald-50 px-3 py-2 rounded-lg active:scale-95 transition-transform shrink-0"
           >
             <Download size={16} />
-            Full Report
+            Report
           </button>
         )}
       </div>

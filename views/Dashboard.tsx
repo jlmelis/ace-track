@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Plus, Trophy, MapPin, ChevronRight, Trash2, Calendar } from 'lucide-react';
 import { Event } from '../types';
 
 interface DashboardProps {
   events: Event[];
-  onAddEvent: (name: string, loc: string) => void;
+  onAddEvent: (name: string, loc: string, date: string) => void;
   onSelectEvent: (id: string) => void;
   onDeleteEvent: (id: string) => void;
 }
@@ -14,13 +13,25 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newLoc, setNewLoc] = useState('');
+  
+  // Helper to get local YYYY-MM-DD
+  const getLocalDate = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [newDate, setNewDate] = useState(getLocalDate());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newName.trim()) {
-      onAddEvent(newName, newLoc);
+      onAddEvent(newName, newLoc, newDate);
       setNewName('');
       setNewLoc('');
+      setNewDate(getLocalDate());
       setIsAdding(false);
     }
   };
@@ -43,20 +54,33 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tournament Name</label>
             <input 
               autoFocus
+              required
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
               placeholder="e.g. State Championship"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</label>
-            <input 
-              value={newLoc}
-              onChange={(e) => setNewLoc(e.target.value)}
-              className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
-              placeholder="e.g. City Arena"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</label>
+              <input 
+                value={newLoc}
+                onChange={(e) => setNewLoc(e.target.value)}
+                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+                placeholder="e.g. City Arena"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</label>
+              <input 
+                type="date"
+                required
+                value={newDate}
+                onChange={(e) => setNewDate(e.target.value)}
+                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              />
+            </div>
           </div>
           <div className="flex gap-2">
             <button 
@@ -97,13 +121,16 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
               >
                 <div className="space-y-1">
                   <h3 className="font-bold text-slate-800">{event.name}</h3>
-                  <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
                     <span className="flex items-center gap-1">
-                      <MapPin size={12} />
-                      {event.location || 'Unknown'}
+                      <Calendar size={12} className="text-indigo-500" />
+                      {new Date(event.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Calendar size={12} />
+                      <MapPin size={12} />
+                      {event.location || 'Unknown Location'}
+                    </span>
+                    <span className="flex items-center gap-1 font-semibold text-indigo-600">
                       {event.matches.length} Matches
                     </span>
                   </div>

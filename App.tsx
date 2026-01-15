@@ -117,8 +117,8 @@ const App: React.FC = () => {
   const activeMatch = useMemo(() => activeEvent?.matches.find(m => m.id === activeMatchId), [activeEvent, activeMatchId]);
   const activeSet = useMemo(() => activeMatch?.sets.find(s => s.id === activeSetId), [activeMatch, activeSetId]);
 
-  const addEvent = (name: string, location: string) => {
-    const newEvent: Event = { id: crypto.randomUUID(), name, location, matches: [] };
+  const addEvent = (name: string, location: string, date: string) => {
+    const newEvent: Event = { id: crypto.randomUUID(), name, location, date, matches: [] };
     setData(prev => ({ ...prev, events: [newEvent, ...prev.events] }));
   };
 
