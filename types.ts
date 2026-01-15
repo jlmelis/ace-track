@@ -1,4 +1,3 @@
-
 export type StatCategory = 'Attacking' | 'Serving' | 'Defense' | 'Setting' | 'Blocking';
 
 export interface StatDefinition {
@@ -85,6 +84,7 @@ export const DEFAULT_STATS: StatDefinition[] = [
   // Blocking
   { id: 'block_solo', label: 'Solo Block', category: 'Blocking', enabled: true },
   { id: 'block_assist', label: 'Blk Assist', category: 'Blocking', enabled: true },
+  { id: 'block_attempt', label: 'Blk Attempt', category: 'Blocking', enabled: true },
   { id: 'block_touch', label: 'Blk Touch', category: 'Blocking', enabled: true },
   { id: 'block_err', label: 'Blk Error', category: 'Blocking', enabled: true },
 ];

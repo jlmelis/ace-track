@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppState, Event, Match, SetData, PlayerProfile, DEFAULT_STATS, DEFAULT_ALIASES, StatLog } from './types.ts';
 import { RefreshCw, X } from 'lucide-react';
@@ -14,6 +13,7 @@ import OnboardingModal from './components/OnboardingModal.tsx';
 
 const STORAGE_KEY = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
+const VERSION = 'v11';
 
 const App: React.FC = () => {
   // Navigation State
@@ -35,6 +35,11 @@ const App: React.FC = () => {
       if (!parsed.profile.categoryAliases) {
         parsed.profile.categoryAliases = { ...DEFAULT_ALIASES };
       }
+      // Migration: Ensure any new default stats are included if the user has data but missing keys
+      const allStatIds = DEFAULT_STATS.map(s => s.id);
+      const currentTracked = parsed.profile.trackedStats || [];
+      // Note: We don't force-add new stats to tracked list for existing users 
+      // so they aren't surprised by UI changes, but they are available in settings.
       return parsed;
     }
     return {
@@ -232,7 +237,7 @@ const App: React.FC = () => {
               <div className="bg-white/20 p-2 rounded-xl text-white animate-pulse"><RefreshCw size={20} /></div>
               <div>
                 <h4 className="text-sm font-bold text-white leading-none">Update Available</h4>
-                <p className="text-[10px] text-indigo-100 mt-1 uppercase tracking-wider font-medium">AceTrack {CACHE_NAME}</p>
+                <p className="text-[10px] text-indigo-100 mt-1 uppercase tracking-wider font-medium">AceTrack {VERSION}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
