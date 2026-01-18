@@ -58,7 +58,7 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
         <h2 className="text-xl font-bold text-slate-800">Tournaments</h2>
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-indigo-600 text-white p-2 rounded-full shadow-lg shadow-indigo-200 active:scale-95 transition-transform"
+          className="bg-brand-primary text-white p-2 rounded-full shadow-lg shadow-brand-primary-200 active:scale-95 transition-transform"
         >
           <Plus size={20} />
         </button>
@@ -73,7 +73,7 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
               required
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-primary-500 transition-shadow"
               placeholder="e.g. State Championship"
             />
           </div>
@@ -82,7 +82,7 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
             <input 
               value={newLoc}
               onChange={(e) => setNewLoc(e.target.value)}
-              className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-primary-500 transition-shadow"
               placeholder="e.g. City Arena"
             />
           </div>
@@ -94,7 +94,7 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
                 required
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
-                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-primary-500 transition-shadow"
               />
             </div>
             <div className="space-y-1">
@@ -103,14 +103,14 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
                 type="date"
                 value={newEndDate}
                 onChange={(e) => setNewEndDate(e.target.value)}
-                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-brand-primary-500 transition-shadow"
               />
             </div>
           </div>
           <div className="flex gap-2">
             <button 
               type="submit"
-              className="flex-1 bg-indigo-600 text-white font-semibold py-3 rounded-lg active:bg-indigo-700 transition-colors"
+              className="flex-1 bg-brand-primary text-white font-semibold py-3 rounded-lg active:bg-brand-primary-700 transition-colors"
             >
               Add Event
             </button>
@@ -148,19 +148,19 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
                   <h3 className="font-bold text-slate-800">{event.name}</h3>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
                     <span className="flex items-center gap-1">
-                      <Calendar size={12} className="text-indigo-500" />
+                      <Calendar size={12} className="text-brand-primary-500" />
                       {formatEventDate(event)}
                     </span>
                     <span className="flex items-center gap-1">
                       <MapPin size={12} />
                       {event.location || 'Unknown Location'}
                     </span>
-                    <span className="flex items-center gap-1 font-semibold text-indigo-600">
+                    <span className="flex items-center gap-1 font-semibold text-brand-primary">
                       {event.matches.length} Matches
                     </span>
                   </div>
                 </div>
-                <ChevronRight className="text-slate-300 group-active:text-indigo-400" size={20} />
+                <ChevronRight className="text-slate-300 group-active:text-brand-primary-400" size={20} />
               </button>
               <button 
                 onClick={() => onDeleteEvent(event.id)}

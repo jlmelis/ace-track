@@ -29,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
         </div>
         <button 
           onClick={() => setView('settings')}
-          className={`p-2 rounded-full transition-colors ${currentView === 'settings' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-500 active:bg-slate-100'}`}
+          className={`p-2 rounded-full transition-colors ${currentView === 'settings' ? 'bg-brand-primary-50 text-brand-primary' : 'text-slate-200 active:bg-slate-100'}`}
         >
           <Settings size={22} />
         </button>
@@ -74,7 +74,7 @@ const NavButton: React.FC<NavButtonProps> = ({ active, icon, label, onClick, dis
   <button 
     onClick={onClick}
     disabled={disabled}
-    className={`flex flex-col items-center justify-center w-full gap-1 transition-colors ${disabled ? 'opacity-20 grayscale' : ''} ${active ? 'text-indigo-600 font-semibold' : 'text-slate-400'}`}
+    className={`flex flex-col items-center justify-center w-full gap-1 transition-colors ${disabled ? 'opacity-20 grayscale' : ''} ${active ? 'text-brand-primary font-semibold' : 'text-slate-200'}`}
   >
     {icon}
     <span className="text-[10px] uppercase tracking-wide">{label}</span>
