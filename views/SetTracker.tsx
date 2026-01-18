@@ -85,7 +85,7 @@ const SetTracker: React.FC<SetTrackerProps> = ({
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      <div className="bg-white border-b sticky sub-header-top z-40 shadow-sm">
+      <div className="bg-white border-b-2 border-slate-200 sticky sub-header-top z-40 ">
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full">

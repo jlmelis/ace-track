@@ -17,7 +17,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
         pt-safe handles the camera notch.
         h-[calc(var(--header-base-height)+env(safe-area-inset-top))] ensures the background fills the whole top.
       */}
-      <header className="fixed top-0 left-0 right-0 bg-white border-b z-[100] pt-safe px-4 flex items-center justify-between shadow-sm" style={{ height: 'calc(var(--header-base-height) + env(safe-area-inset-top))' }}>
+      <header className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-100 pt-safe px-4 flex items-center justify-between" style={{ height: 'calc(var(--header-base-height) + env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2">
             <div className=" p-1.5 rounded-lg">
               <img src="/icon.png" alt="AceTrack Icon" style={{ width: 30, height: 30 }} />
@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
       </main>
 
       {/* Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t pb-safe z-[100]">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 pb-safe z-100">
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
           <NavButton 
             active={currentView === 'dashboard' || currentView === 'event' || currentView === 'match'} 

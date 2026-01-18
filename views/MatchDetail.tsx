@@ -75,7 +75,7 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
   return (
     <div className="animate-in slide-in-from-right-4 duration-200">
       {/* Header */}
-      <div className="bg-white p-4 border-b flex items-center justify-between sticky sub-header-top z-40 shadow-sm">
+      <div className="bg-white p-4 border-b border-slate-200 flex items-center justify-between sticky sub-header-top z-40 shadow-sm">
         <div className="flex items-center gap-4">
           <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full">
             <ArrowLeft size={24} />
