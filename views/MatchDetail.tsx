@@ -1,5 +1,16 @@
 import React from 'react';
-import { ArrowLeft, Plus, ChevronRight, Download, Activity, Target, Shield, Zap, LayoutGrid, Trash2 } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Plus, 
+  ChevronRight, 
+  Download, 
+  Trash2,
+  Swords, // Attacking
+  Send,   // Serving
+  Hand,   // Defense
+  Orbit,  // Setting
+  Fence   // Blocking
+} from 'lucide-react';
 import { Match, PlayerProfile, StatDefinition, StatCategory, CATEGORY_ORDER } from '../types.ts';
 
 interface MatchDetailProps {
@@ -13,19 +24,19 @@ interface MatchDetailProps {
 }
 
 const CATEGORY_ICONS: Record<StatCategory, React.ReactNode> = {
-  'Attacking': <Zap size={12} />,
-  'Serving': <Target size={12} />,
-  'Defense': <Shield size={12} />,
-  'Setting': <LayoutGrid size={12} />,
-  'Blocking': <Activity size={12} />,
+  'Attacking': <Swords size={14} strokeWidth={2.5} />,
+  'Serving':   <Send size={14} strokeWidth={2.5} />,
+  'Defense':   <Fence size={14} strokeWidth={2.5} />,
+  'Setting':   <Orbit size={14} strokeWidth={2.5} />,
+  'Blocking':  <Hand size={14} strokeWidth={2.5} />,
 };
 
 const CATEGORY_COLORS: Record<StatCategory, string> = {
-  'Attacking': 'text-orange-600 bg-orange-50',
-  'Serving': 'text-blue-600 bg-blue-50',
-  'Defense': 'text-emerald-600 bg-emerald-50',
-  'Setting': 'text-indigo-600 bg-indigo-50',
-  'Blocking': 'text-slate-600 bg-slate-50',
+  'Attacking': 'text-brand-primary-700 bg-brand-primary-50', // Steel Blue
+  'Serving': 'text-brand-accent font-bold bg-brand-accent-light', // Energy Indigo
+  'Defense': 'text-brand-success font-bold bg-brand-success-light', // Success Green
+  'Setting': 'text-brand-primary-900 bg-brand-primary-200', // Deep Navy
+  'Blocking': 'text-brand-neutral-500 bg-brand-neutral-50', // Slate
 };
 
 const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAddSet, onSelectSet, onDeleteSet, allStats }) => {
@@ -72,24 +83,24 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
     link.click();
   };
 
-  return (
+return (
     <div className="animate-in slide-in-from-right-4 duration-200">
-      {/* Header */}
-      <div className="bg-white p-4 border-b flex items-center justify-between sticky sub-header-top z-40 shadow-sm">
+      {/* Header - Unified with Dashboard & Event Detail */}
+      <div className="bg-white p-4 border-b border-brand-neutral-200 flex items-center justify-between sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full">
-            <ArrowLeft size={24} />
+          <button onClick={onBack} className="p-1 -ml-1 text-brand-neutral-500 active:text-brand-primary-900 rounded-full transition-colors">
+            <ArrowLeft size={24} strokeWidth={2.5} />
           </button>
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-slate-800 truncate">vs {match.opponent}</h2>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">{match.date}</p>
+            <h2 className="text-lg font-bold text-brand-neutral-800 truncate uppercase tracking-tight">vs {match.opponent}</h2>
+            <p className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-widest leading-none mt-1">{match.date}</p>
           </div>
         </div>
         <button 
           onClick={handleExport}
-          className="flex items-center gap-1.5 text-emerald-600 font-bold text-xs bg-emerald-50 px-3 py-2 rounded-lg active:scale-95 transition-transform"
+          className="flex items-center gap-1.5 text-brand-primary-900 font-bold text-xs bg-brand-primary-50 px-3 py-2 rounded-lg border border-brand-primary-200 active:scale-95 transition-all"
         >
-          <Download size={16} />
+          <Download size={14} strokeWidth={3} />
           CSV
         </button>
       </div>
@@ -98,47 +109,51 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
         {/* 1. Sets Section */}
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Match Sets</h3>
+            <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.2em]">Match Sets</h3>
             <button 
               onClick={onAddSet}
-              className="flex items-center gap-1.5 text-indigo-600 font-bold text-[11px] bg-indigo-50 px-3 py-1.5 rounded-lg active:scale-95 transition-transform uppercase tracking-wider"
+              className="flex items-center gap-1.5 text-white font-bold text-[11px] bg-brand-primary-900 px-4 py-2 rounded-full active:scale-95 transition-transform uppercase tracking-wider shadow-md"
             >
-              <Plus size={14} strokeWidth={3} />
+              <Plus size={14} strokeWidth={4} />
               Track Set
             </button>
           </div>
 
           <div className="grid gap-2">
             {match.sets.length === 0 ? (
-              <div className="text-center py-10 px-6 bg-white border border-dashed rounded-2xl border-slate-200">
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">No sets started</p>
+              <div className="text-center py-10 px-6 bg-brand-neutral-50 border-2 border-dashed rounded-2xl border-brand-neutral-200">
+                <p className="text-xs text-brand-neutral-400 font-bold uppercase tracking-widest">No sets started</p>
               </div>
             ) : (
               match.sets.map(set => (
                 <div 
                   key={set.id}
-                  className="bg-white border border-slate-100 rounded-2xl overflow-hidden text-left flex items-stretch shadow-sm active:scale-[0.99] transition-transform group"
+                  className="bg-white border border-brand-neutral-200 rounded-2xl overflow-hidden text-left flex items-stretch shadow-sm active:scale-[0.99] transition-all group"
                 >
                   <button 
                     onClick={() => onSelectSet(set.id)}
-                    className="flex-1 p-4 text-left flex items-center justify-between active:bg-slate-50 transition-colors"
+                    className="flex-1 p-4 text-left flex items-center justify-between active:bg-brand-primary-50 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm ${set.isCompleted ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm border-2 ${
+                        set.isCompleted 
+                        ? 'bg-brand-success-light text-brand-success border-brand-success/20' 
+                        : 'bg-brand-accent-light text-brand-accent border-brand-accent/20 animate-pulse'
+                      }`}>
                         {set.setNumber}
                       </div>
                       <div>
-                        <h4 className="font-bold text-slate-800">Set {set.setNumber}</h4>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                          {set.logs.length} Actions • {set.isCompleted ? 'Completed' : 'Live'}
+                        <h4 className="font-bold text-brand-neutral-800 italic uppercase tracking-tight">Set {set.setNumber}</h4>
+                        <p className="text-[10px] text-brand-neutral-500 font-bold uppercase tracking-wider">
+                          {set.logs.length} Actions • <span className={set.isCompleted ? 'text-brand-success' : 'text-brand-accent'}>{set.isCompleted ? 'Completed' : 'Live'}</span>
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="text-slate-300 group-active:text-indigo-400 transition-colors" size={20} />
+                    <ChevronRight className="text-brand-neutral-200 group-active:text-brand-primary-900" size={20} strokeWidth={3} />
                   </button>
                   <button 
                     onClick={() => onDeleteSet(set.id)}
-                    className="bg-slate-50 px-4 border-l border-slate-100 text-slate-400 active:text-red-500 active:bg-red-50 transition-colors flex items-center justify-center"
+                    className="bg-brand-neutral-50 px-4 border-l border-brand-neutral-200 text-brand-neutral-400 hover:text-red-500 transition-colors flex items-center justify-center"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -150,27 +165,31 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
 
         {/* 2. Cumulative Stats Section */}
         {match.sets.length > 0 && (
-          <section className="space-y-4 pt-4 border-t border-slate-100">
+          <section className="space-y-4 pt-4 border-t border-brand-neutral-200">
             <div className="px-1">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Full Match Summary</h3>
+              <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.2em]">Full Match Summary</h3>
             </div>
 
             {totalAttacks > 0 && (
-              <div className="bg-slate-900 text-white rounded-2xl p-4 flex items-center justify-between shadow-lg shadow-slate-200 overflow-hidden relative">
-                <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-indigo-500/20 to-transparent pointer-events-none" />
+              <div className="bg-brand-neutral-800 text-white rounded-2xl p-5 flex items-center justify-between shadow-xl shadow-brand-primary-900/10 overflow-hidden relative">
+                <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-brand-primary-500/10 to-transparent pointer-events-none" />
                 <div className="relative z-10">
-                  <p className="text-[9px] font-black text-indigo-300 uppercase tracking-[0.2em]">Efficiency Score</p>
-                  <p className="text-[10px] text-slate-400 mt-1">K:{kills} | E:{attackErrors} | T:{totalAttacks}</p>
+                  <p className="text-[9px] font-black text-brand-primary-400 uppercase tracking-[0.2em]">Efficiency Score</p>
+                  <p className="text-[10px] text-brand-neutral-400 font-bold mt-1 uppercase">K:{kills} | E:{attackErrors} | T:{totalAttacks}</p>
                 </div>
                 <div className="text-right relative z-10">
-                  <p className={`text-2xl font-black ${hittingPercentage >= 0.3 ? 'text-emerald-400' : hittingPercentage >= 0.1 ? 'text-indigo-300' : 'text-slate-200'}`}>
+                  <p className={`text-3xl font-black italic ${
+                    hittingPercentage >= 0.3 ? 'text-brand-success' : 
+                    hittingPercentage >= 0.1 ? 'text-brand-primary-400' : 
+                    'text-brand-neutral-200'
+                  }`}>
                     {hittingPercentage.toFixed(3)}
                   </p>
                 </div>
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {CATEGORY_ORDER.map(cat => {
                 const catStats = allStats.filter(s => s.category === cat && totals[s.id]);
                 if (catStats.length === 0) return null;
@@ -181,15 +200,15 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
                       <div className={`p-1 rounded-md ${CATEGORY_COLORS[cat]}`}>
                         {CATEGORY_ICONS[cat]}
                       </div>
-                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{cat}</span>
+                      <span className="text-[10px] font-black text-brand-neutral-500 uppercase tracking-widest">{cat}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       {catStats.map(stat => (
-                        <div key={stat.id} className="bg-white border border-slate-100 rounded-xl p-3 flex items-center justify-between shadow-sm">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight truncate pr-2">
+                        <div key={stat.id} className="bg-white border border-brand-neutral-200 rounded-xl p-3 flex items-center justify-between shadow-sm">
+                          <span className="text-[10px] font-bold text-brand-neutral-500 uppercase tracking-tight truncate pr-2">
                             {stat.label}
                           </span>
-                          <span className="text-xs font-black text-slate-800 tabular-nums">
+                          <span className="text-xs font-black text-brand-neutral-800 tabular-nums">
                             {totals[stat.id] || 0}
                           </span>
                         </div>

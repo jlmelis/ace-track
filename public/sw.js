@@ -1,4 +1,4 @@
-const CACHE_NAME = 'acetrack-v23'; 
+const CACHE_NAME = 'acetrack-v24'; 
 const LAST_UPDATED = '2026-01-17T15:00:00Z'; // Fresh timestamp for update
 
 const ASSETS = [

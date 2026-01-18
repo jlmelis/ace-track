@@ -52,73 +52,35 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
     return start.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  return (
+return (
     <div className="p-4 space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-slate-800">Tournaments</h2>
+        <h2 className="text-xl font-bold text-brand-neutral-800 uppercase tracking-tight">Tournaments</h2>
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-indigo-600 text-white p-2 rounded-full shadow-lg shadow-indigo-200 active:scale-95 transition-transform"
+          className="bg-brand-primary-900 text-white p-2 rounded-full shadow-lg active:scale-95 transition-transform"
         >
-          <Plus size={20} />
+          <Plus size={24} strokeWidth={2.5} />
         </button>
       </div>
 
       {isAdding && (
-        <form onSubmit={handleSubmit} className="bg-white border rounded-xl p-4 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
+        <form onSubmit={handleSubmit} className="bg-white border border-brand-neutral-200 rounded-xl p-4 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tournament Name</label>
+            <label className="text-xs font-bold text-brand-primary-700 uppercase tracking-wider ml-1">Tournament Name</label>
             <input 
-              autoFocus
-              required
+              autoFocus required
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              className="w-full bg-brand-neutral-50 border-0 rounded-lg p-3 outline-none ring-1 ring-brand-neutral-200 focus:ring-2 focus:ring-brand-primary-900 transition-all"
               placeholder="e.g. State Championship"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Location</label>
-            <input 
-              value={newLoc}
-              onChange={(e) => setNewLoc(e.target.value)}
-              className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
-              placeholder="e.g. City Arena"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Start Date</label>
-              <input 
-                type="date"
-                required
-                value={newDate}
-                onChange={(e) => setNewDate(e.target.value)}
-                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">End Date (Optional)</label>
-              <input 
-                type="date"
-                value={newEndDate}
-                onChange={(e) => setNewEndDate(e.target.value)}
-                className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button 
-              type="submit"
-              className="flex-1 bg-indigo-600 text-white font-semibold py-3 rounded-lg active:bg-indigo-700 transition-colors"
-            >
-              Add Event
+          <div className="flex gap-2 pt-2">
+            <button type="submit" className="flex-1 bg-brand-primary-900 text-white font-bold py-3 rounded-lg shadow-md active:bg-black transition-colors">
+              Add Tournament
             </button>
-            <button 
-              type="button"
-              onClick={() => setIsAdding(false)}
-              className="px-4 text-slate-500 font-medium"
-            >
+            <button type="button" onClick={() => setIsAdding(false)} className="px-4 text-brand-neutral-500 font-semibold">
               Cancel
             </button>
           </div>
@@ -128,44 +90,35 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
       <div className="grid gap-3">
         {events.length === 0 ? (
           <div className="text-center py-12 px-6">
-            <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
-              <Trophy size={32} />
+            <div className="bg-brand-primary-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-primary-400">
+              <Trophy size={32} strokeWidth={1.5} />
             </div>
-            <h3 className="font-semibold text-slate-700">No events yet</h3>
-            <p className="text-sm text-slate-500 mt-1">Tap the plus button to add your first tournament.</p>
+            <h3 className="font-bold text-brand-neutral-800">No events yet</h3>
+            <p className="text-sm text-brand-neutral-500 mt-1">Tap the plus button to add your first tournament.</p>
           </div>
         ) : (
           events.map(event => (
-            <div 
-              key={event.id}
-              className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.98] transition-transform flex"
-            >
-              <button 
-                onClick={() => onSelectEvent(event.id)}
-                className="flex-1 p-4 text-left flex items-center justify-between group"
-              >
+            <div key={event.id} className="bg-white border border-brand-neutral-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform flex">
+              <button onClick={() => onSelectEvent(event.id)} className="flex-1 p-4 text-left flex items-center justify-between group">
                 <div className="space-y-1">
-                  <h3 className="font-bold text-slate-800">{event.name}</h3>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                  <h3 className="font-bold text-brand-neutral-800 text-lg">{event.name}</h3>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-neutral-500 font-medium">
                     <span className="flex items-center gap-1">
-                      <Calendar size={12} className="text-indigo-500" />
+                      <Calendar size={14} className="text-brand-primary-600" strokeWidth={2.5} />
                       {formatEventDate(event)}
                     </span>
                     <span className="flex items-center gap-1">
-                      <MapPin size={12} />
+                      <MapPin size={14} className="text-brand-primary-400" />
                       {event.location || 'Unknown Location'}
                     </span>
-                    <span className="flex items-center gap-1 font-semibold text-indigo-600">
+                    <span className="flex items-center gap-1 font-bold text-brand-primary-900 bg-brand-primary-50 px-2 py-0.5 rounded">
                       {event.matches.length} Matches
                     </span>
                   </div>
                 </div>
-                <ChevronRight className="text-slate-300 group-active:text-indigo-400" size={20} />
+                <ChevronRight className="text-brand-neutral-200 group-active:text-brand-primary-900" size={24} strokeWidth={3} />
               </button>
-              <button 
-                onClick={() => onDeleteEvent(event.id)}
-                className="bg-slate-50 px-4 border-l border-slate-100 text-slate-400 active:text-red-500 active:bg-red-50 transition-colors"
-              >
+              <button onClick={() => onDeleteEvent(event.id)} className="bg-brand-neutral-50 px-4 border-l border-brand-neutral-200 text-brand-neutral-500 active:text-red-500 transition-colors">
                 <Trash2 size={18} />
               </button>
             </div>

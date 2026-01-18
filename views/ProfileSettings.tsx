@@ -1,5 +1,26 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle, ChevronDown, ChevronUp, RefreshCw, Plus, Target, Zap, Shield, Activity, LayoutGrid, CheckSquare, Square } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Save, 
+  Check, 
+  Trash2, 
+  Database, 
+  Download, 
+  Upload, 
+  AlertTriangle, 
+  ChevronDown, 
+  ChevronUp, 
+  RefreshCw, 
+  Plus, 
+  CheckSquare, 
+  Square,
+  // New Category Icons
+  Swords, // Replaces Zap (Attacking)
+  Send,   // Replaces Target (Serving)
+  Hand,   // Replaces Shield (Defense)
+  Orbit,  // Replaces LayoutGrid (Setting)
+  Fence   // Replaces Activity (Blocking)
+} from 'lucide-react';
 import { PlayerProfile, DEFAULT_STATS, StatCategory, DEFAULT_ALIASES, CATEGORY_ORDER, StatDefinition } from '../types';
 
 interface ProfileSettingsProps {
@@ -12,11 +33,11 @@ interface ProfileSettingsProps {
 }
 
 const CATEGORY_ICONS: Record<StatCategory, React.ReactNode> = {
-  'Attacking': <Zap size={14} />,
-  'Serving': <Target size={14} />,
-  'Defense': <Shield size={14} />,
-  'Setting': <LayoutGrid size={14} />,
-  'Blocking': <Activity size={14} />,
+  'Attacking': <Swords size={14} strokeWidth={2.5} />,
+  'Serving': <Send size={14} strokeWidth={2.5} />,
+  'Defense': <Fence size={14} strokeWidth={2.5} />,
+  'Setting': <Orbit size={14} strokeWidth={2.5} />,
+  'Blocking': <Hand size={14} strokeWidth={2.5} />,
 };
 
 const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBack, customStats, onAddCustomStat, onDeleteCustomStat }) => {
@@ -166,78 +187,91 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
     reader.readAsText(file);
   };
 
-  return (
-    <div className="animate-in slide-in-from-right-4 duration-200 pb-24">
-      <div className="bg-white p-4 border-b flex items-center justify-between sticky sub-header-top z-40 shadow-sm">
+return (
+    <div className="animate-in slide-in-from-right-4 duration-200 pb-24 bg-brand-neutral-50 min-h-screen">
+      {/* Header - Unified with Dashboard/Event/Match details */}
+      <div className="bg-white p-4 border-b border-brand-neutral-200 flex items-center justify-between sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-1 -ml-1 text-slate-500 active:bg-slate-100 rounded-full"><ArrowLeft size={24} /></button>
-          <h2 className="text-lg font-bold text-slate-800">Profile & Config</h2>
+          <button onClick={onBack} className="p-1 -ml-1 text-brand-neutral-500 active:bg-brand-neutral-50 rounded-full transition-colors">
+            <ArrowLeft size={24} strokeWidth={2.5} />
+          </button>
+          <h2 className="text-lg font-bold text-brand-neutral-800 uppercase tracking-tight">Settings</h2>
         </div>
-        <button onClick={handleSave} className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-sm active:scale-95 transition-all shadow-md shadow-indigo-100">
-          {showSaved ? <Check size={18} /> : <Save size={18} />}
-          {showSaved ? 'Saved' : 'Save'}
+        <button 
+          onClick={handleSave} 
+          className="flex items-center gap-1.5 bg-brand-primary-900 text-white px-4 py-2 rounded-xl font-bold text-sm active:scale-95 transition-all shadow-lg shadow-brand-primary-900/20"
+        >
+          {showSaved ? <Check size={18} strokeWidth={3} /> : <Save size={18} />}
+          {showSaved ? 'SAVED' : 'SAVE'}
         </button>
       </div>
 
       <div className="p-4 space-y-8">
         {/* 1. Player Details */}
-        <section className="space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1 text-left">Player Details</h3>
-          <div className="grid gap-4 bg-white p-4 rounded-xl border border-slate-200">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-500 uppercase">Player Name</label>
-              <input value={localProfile.name} onChange={e => setLocalProfile({...localProfile, name: e.target.value})} className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-all font-medium" />
+        <section className="space-y-3">
+          <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.25em] px-1">Player Profile</h3>
+          <div className="grid gap-4 bg-white p-5 rounded-2xl border border-brand-neutral-200 shadow-sm">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-brand-primary-700 uppercase tracking-wider ml-1">Full Name</label>
+              <input 
+                value={localProfile.name} 
+                onChange={e => setLocalProfile({...localProfile, name: e.target.value})} 
+                className="w-full bg-brand-neutral-50 border-0 rounded-xl p-3 outline-none ring-1 ring-brand-neutral-200 focus:ring-2 focus:ring-brand-primary-900 transition-all font-bold text-brand-neutral-800" 
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase">Jersey #</label>
-                <input value={localProfile.number} onChange={e => setLocalProfile({...localProfile, number: e.target.value})} className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-all font-medium" />
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-brand-primary-700 uppercase tracking-wider ml-1">Jersey #</label>
+                <input 
+                  value={localProfile.number} 
+                  onChange={e => setLocalProfile({...localProfile, number: e.target.value})} 
+                  className="w-full bg-brand-neutral-50 border-0 rounded-xl p-3 outline-none ring-1 ring-brand-neutral-200 focus:ring-2 focus:ring-brand-primary-900 transition-all font-bold text-brand-neutral-800" 
+                />
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase">Position</label>
-                <input value={localProfile.position} onChange={e => setLocalProfile({...localProfile, position: e.target.value})} className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-all font-medium" />
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-brand-primary-700 uppercase tracking-wider ml-1">Position</label>
+                <input 
+                  value={localProfile.position} 
+                  onChange={e => setLocalProfile({...localProfile, position: e.target.value})} 
+                  className="w-full bg-brand-neutral-50 border-0 rounded-xl p-3 outline-none ring-1 ring-brand-neutral-200 focus:ring-2 focus:ring-brand-primary-900 transition-all font-bold text-brand-neutral-800" 
+                />
               </div>
             </div>
           </div>
         </section>
 
-        {/* 2. Custom Stats Section - Moved Up */}
-        <section className="space-y-4">
+        {/* 2. Custom Metrics */}
+        <section className="space-y-3">
           <div className="px-1 flex items-center justify-between">
-            <div>
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Custom Metrics</h3>
-              <p className="text-[10px] text-slate-500 mt-1 uppercase font-medium">Add unique trackers</p>
-            </div>
+            <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.25em]">Custom Metrics</h3>
             <button 
               onClick={() => setIsAddingStat(!isAddingStat)}
-              className="p-2 bg-indigo-50 text-indigo-600 rounded-lg active:scale-95 transition-transform"
+              className="p-2 bg-brand-primary-50 text-brand-primary-900 rounded-xl active:scale-95 transition-all border border-brand-primary-200"
             >
-              <Plus size={18} strokeWidth={3} />
+              <Plus size={20} strokeWidth={3} />
             </button>
           </div>
 
           {isAddingStat && (
-            <form onSubmit={handleAddStatSubmit} className="bg-white border border-indigo-100 p-4 rounded-xl space-y-4 animate-in slide-in-from-top-2 shadow-sm shadow-indigo-50">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Metric Label</label>
+            <form onSubmit={handleAddStatSubmit} className="bg-white border-2 border-brand-primary-200 p-5 rounded-2xl space-y-4 animate-in zoom-in-95 shadow-xl shadow-brand-primary-900/5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-brand-primary-700 uppercase tracking-wider ml-1">Metric Name</label>
                 <input 
-                  autoFocus
-                  required
+                  autoFocus required
                   value={newStatLabel}
                   onChange={e => setNewStatLabel(e.target.value)}
-                  className="w-full bg-slate-50 border-0 rounded-lg p-3 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
-                  placeholder="e.g. Free Ball Pass"
+                  className="w-full bg-brand-neutral-50 border-0 rounded-xl p-3 outline-none ring-1 ring-brand-neutral-200 focus:ring-2 focus:ring-brand-primary-900 transition-all font-bold"
+                  placeholder="e.g. Dig to Target"
                 />
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Category Bucket</label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-brand-primary-700 uppercase tracking-wider ml-1">Category</label>
                 <div className="grid grid-cols-3 gap-2">
                   {CATEGORY_ORDER.map(cat => (
                     <button
-                      key={cat}
-                      type="button"
+                      key={cat} type="button"
                       onClick={() => setNewStatCat(cat)}
-                      className={`py-2 px-1 rounded-lg text-[9px] font-bold uppercase transition-all ${newStatCat === cat ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}
+                      className={`py-2 rounded-lg text-[9px] font-black uppercase transition-all border ${newStatCat === cat ? 'bg-brand-primary-900 text-white border-brand-primary-900 shadow-md' : 'bg-brand-neutral-50 text-brand-neutral-400 border-brand-neutral-200'}`}
                     >
                       {cat}
                     </button>
@@ -245,27 +279,27 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
                 </div>
               </div>
               <div className="flex gap-2 pt-2">
-                <button type="submit" className="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-lg text-xs shadow-md shadow-indigo-100">Create Stat</button>
-                <button type="button" onClick={() => setIsAddingStat(false)} className="px-4 text-slate-500 text-xs font-bold uppercase tracking-widest">Cancel</button>
+                <button type="submit" className="flex-1 bg-brand-primary-900 text-white font-black py-3 rounded-xl text-xs shadow-lg uppercase tracking-widest">Create</button>
+                <button type="button" onClick={() => setIsAddingStat(false)} className="px-4 text-brand-neutral-500 text-[10px] font-black uppercase tracking-widest">Cancel</button>
               </div>
             </form>
           )}
 
           <div className="grid gap-2">
             {customStats.length === 0 ? (
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">No custom stats created</p>
+              <p className="text-[10px] text-brand-neutral-400 uppercase tracking-widest text-center py-8 bg-brand-neutral-50 rounded-2xl border-2 border-dashed border-brand-neutral-200 font-bold">No custom metrics</p>
             ) : (
               customStats.map(stat => (
-                <div key={stat.id} className="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between shadow-sm">
+                <div key={stat.id} className="bg-white border border-brand-neutral-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
                   <div className="flex items-center gap-3">
-                    <div className="bg-slate-50 p-2 rounded-lg text-slate-400">{CATEGORY_ICONS[stat.category]}</div>
+                    <div className="bg-brand-primary-50 p-2.5 rounded-xl text-brand-primary-600">{CATEGORY_ICONS[stat.category]}</div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-800">{stat.label}</h4>
-                      <span className="text-[9px] font-black text-indigo-400 uppercase tracking-wider">{stat.category}</span>
+                      <h4 className="text-sm font-black text-brand-neutral-800 uppercase italic">{stat.label}</h4>
+                      <span className="text-[9px] font-black text-brand-primary-400 uppercase tracking-widest">{stat.category}</span>
                     </div>
                   </div>
-                  <button onClick={() => onDeleteCustomStat(stat.id)} className="p-2 text-slate-300 active:text-red-500 active:bg-red-50 rounded-lg transition-colors">
-                    <Trash2 size={16} />
+                  <button onClick={() => onDeleteCustomStat(stat.id)} className="p-2 text-brand-neutral-300 hover:text-red-500 transition-colors">
+                    <Trash2 size={18} />
                   </button>
                 </div>
               ))
@@ -273,10 +307,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
           </div>
         </section>
 
-        {/* 3. Stats Configuration - Sections Collapsed by Default */}
-        <section className="space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1 text-left">Stats Configuration</h3>
-          <div className="space-y-4">
+        {/* 3. Stats Configuration */}
+        <section className="space-y-3">
+          <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.25em] px-1">Tracking Configuration</h3>
+          <div className="space-y-3">
             {CATEGORY_ORDER.map(cat => {
               const catStats = allStatsCombined.filter(s => s.category === cat);
               const isExpanded = expandedCats[cat];
@@ -285,58 +319,58 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
               const isAllTracked = trackedCount === catStats.length;
 
               return (
-                <div key={cat} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                <div key={cat} className="bg-white rounded-2xl border border-brand-neutral-200 overflow-hidden shadow-sm">
                   <button 
                     onClick={() => toggleCategory(cat)}
-                    className="w-full flex items-center justify-between p-4 bg-slate-50/50 active:bg-slate-100 transition-colors"
+                    className="w-full flex items-center justify-between p-4 bg-brand-neutral-50/50 active:bg-brand-neutral-50 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="bg-indigo-50 text-indigo-600 p-1.5 rounded-md">
+                      <div className="bg-brand-primary-900 text-white p-1.5 rounded-lg">
                         {CATEGORY_ICONS[cat]}
                       </div>
-                      <span className="font-bold text-slate-800 text-sm tracking-tight">{cat}</span>
-                      <span className="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-full font-bold ml-1">
-                        {trackedCount} / {catStats.length}
+                      <span className="font-black text-brand-neutral-800 text-sm uppercase italic tracking-tight">{cat}</span>
+                      <span className="text-[10px] bg-brand-primary-600 text-white px-2 py-0.5 rounded-full font-black ml-1">
+                        {trackedCount}/{catStats.length}
                       </span>
                     </div>
-                    {isExpanded ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
+                    {isExpanded ? <ChevronUp size={20} className="text-brand-neutral-400" /> : <ChevronDown size={20} className="text-brand-neutral-400" />}
                   </button>
 
                   {isExpanded && (
-                    <div className="p-4 pt-0 space-y-4 animate-in slide-in-from-top-1 duration-200">
-                      <div className="pt-4 flex items-center justify-between border-t border-slate-100">
+                    <div className="p-4 pt-0 space-y-5 animate-in slide-in-from-top-1 duration-200">
+                      <div className="pt-4 flex items-center justify-between border-t border-brand-neutral-100">
                          <div className="flex items-center gap-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tab Alias</label>
+                            <label className="text-[9px] font-black text-brand-neutral-400 uppercase tracking-widest">Tab ID</label>
                             <input 
                               value={alias} 
                               onChange={e => updateAlias(cat, e.target.value)}
-                              className="w-10 bg-slate-50 border border-slate-200 rounded-md p-1 text-[10px] text-center font-black text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-500"
+                              className="w-12 bg-brand-primary-50 border-2 border-brand-primary-200 rounded-lg p-1.5 text-xs text-center font-black text-brand-primary-900 uppercase outline-none focus:ring-2 focus:ring-brand-primary-900"
                             />
                          </div>
                          <button 
                             onClick={() => toggleAllInCategory(cat)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all shadow-sm active:scale-95 ${isAllTracked ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}
+                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95 ${isAllTracked ? 'bg-brand-primary-900 text-white' : 'bg-brand-neutral-50 text-brand-neutral-500 border border-brand-neutral-200'}`}
                          >
-                            {isAllTracked ? <CheckSquare size={12} /> : <Square size={12} />}
-                            {isAllTracked ? 'Deselect All' : 'Select All'}
+                            {isAllTracked ? <CheckSquare size={14} strokeWidth={3} /> : <Square size={14} strokeWidth={3} />}
+                            {isAllTracked ? 'Reset' : 'Check All'}
                          </button>
                       </div>
                       
-                      <div className="grid gap-2">
+                      <div className="grid gap-1">
                         {catStats.map(stat => {
                           const isTracked = localProfile.trackedStats.includes(stat.id);
                           return (
-                            <div key={stat.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50 last:border-0">
-                              <label htmlFor={`stat-${stat.id}`} className="flex-1 text-xs font-bold text-slate-700 cursor-pointer">
+                            <div key={stat.id} className="flex items-center justify-between p-3 hover:bg-brand-neutral-50 rounded-xl transition-colors">
+                              <label htmlFor={`stat-${stat.id}`} className="flex-1 text-xs font-bold text-brand-neutral-700 uppercase tracking-tight cursor-pointer">
                                 {stat.label}
-                                {stat.isCustom && <span className="ml-2 text-[7px] bg-indigo-100 text-indigo-600 px-1 py-0.5 rounded font-black uppercase">Custom</span>}
+                                {stat.isCustom && <span className="ml-2 text-[8px] bg-brand-primary-50 text-brand-primary-600 px-1.5 py-0.5 rounded font-black uppercase">Custom</span>}
                               </label>
                               <button
                                 id={`stat-${stat.id}`}
                                 onClick={() => toggleStat(stat.id)}
-                                className={`w-10 h-6 rounded-full transition-colors duration-200 relative shrink-0 ${isTracked ? 'bg-indigo-600 shadow-inner' : 'bg-slate-200'}`}
+                                className={`w-11 h-6 rounded-full transition-all duration-300 relative shrink-0 ${isTracked ? 'bg-brand-primary-900' : 'bg-brand-neutral-200 shadow-inner'}`}
                               >
-                                <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out ${isTracked ? 'translate-x-4' : 'translate-x-0'}`} />
+                                <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out ${isTracked ? 'translate-x-5' : 'translate-x-0'}`} />
                               </button>
                             </div>
                           );
@@ -350,45 +384,55 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
           </div>
         </section>
 
-        {/* 4. Database & Application */}
-        <section className="space-y-4">
+        {/* 4. System Info */}
+        <section className="space-y-3">
           <div className="px-1 flex items-center justify-between">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">System</h3>
+            <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.25em]">System</h3>
             <button 
               onClick={handleManualUpdateCheck}
               disabled={updateStatus === 'checking'}
-              className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-1 rounded transition-colors active:bg-indigo-100 disabled:opacity-50"
+              className="flex items-center gap-1.5 text-[9px] font-black text-brand-primary-900 uppercase tracking-widest bg-brand-primary-50 px-3 py-1.5 rounded-lg transition-all active:scale-95 border border-brand-primary-200"
             >
-              <RefreshCw size={12} className={updateStatus === 'checking' ? 'animate-spin' : ''} />
-              {updateStatus === 'checking' ? 'Checking...' : updateStatus === 'current' ? 'Up To Date' : updateStatus === 'found' ? 'Update Found!' : 'Check for Updates'}
+              <RefreshCw size={12} className={updateStatus === 'checking' ? 'animate-spin' : ''} strokeWidth={3} />
+              {updateStatus === 'checking' ? 'Checking...' : updateStatus === 'current' ? 'Latest Version' : 'Update Check'}
             </button>
           </div>
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-             <div className="flex items-center gap-3 text-slate-600">
-               <div className="bg-indigo-50 text-indigo-600 p-2 rounded-lg"><Database size={18} /></div>
+          <div className="bg-brand-neutral-800 p-5 rounded-2xl border border-white/10 shadow-2xl flex items-center justify-between relative overflow-hidden">
+             <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
+             <div className="flex items-center gap-4 text-white relative z-10">
+               <div className="bg-white/10 text-brand-primary-400 p-3 rounded-xl backdrop-blur-sm border border-white/5"><Database size={20} /></div>
                <div>
-                  <h4 className="text-xs font-bold text-slate-800">Object Database</h4>
-                  <p className="text-[10px] text-slate-400 font-medium">IndexedDB - High Capacity Engine</p>
+                  <h4 className="text-xs font-black uppercase italic tracking-wider">AceTrack v18</h4>
+                  <p className="text-[10px] text-brand-neutral-400 font-bold uppercase tracking-widest">IndexedDB Local Storage</p>
                </div>
              </div>
-             <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded border border-indigo-100">v18 Engine</span>
+             <span className="text-[10px] font-black text-brand-primary-400 border border-brand-primary-400/30 px-3 py-1 rounded-full relative z-10">ENCRYPTED</span>
           </div>
         </section>
 
         {/* 5. Data Management */}
-        <section className="space-y-4 pt-4 border-t border-slate-200">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-1 text-left">Data Backup</h3>
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-6">
+        <section className="space-y-4 pt-6 border-t border-brand-neutral-200">
+          <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.25em] px-1">Storage & Backup</h3>
+          <div className="bg-white border border-brand-neutral-200 rounded-2xl p-5 space-y-6 shadow-sm">
             <div className="grid grid-cols-2 gap-3">
-              <button onClick={handleBackup} className="flex items-center justify-center gap-2 bg-white border border-slate-200 py-3 rounded-xl font-bold text-xs text-slate-700 active:bg-slate-100 shadow-sm transition-transform active:scale-95"><Download size={16} className="text-indigo-600" />Export State</button>
-              <button onClick={handleRestoreClick} className="flex items-center justify-center gap-2 bg-white border border-slate-200 py-3 rounded-xl font-bold text-xs text-slate-700 active:bg-slate-100 shadow-sm transition-transform active:scale-95"><Upload size={16} className="text-indigo-600" />Import State</button>
+              <button onClick={handleBackup} className="flex items-center justify-center gap-2 bg-brand-neutral-50 border border-brand-neutral-200 py-3.5 rounded-xl font-black text-[10px] text-brand-neutral-700 active:bg-white uppercase tracking-widest transition-all active:scale-95 shadow-sm">
+                <Download size={16} className="text-brand-primary-600" strokeWidth={2.5} />
+                Backup
+              </button>
+              <button onClick={handleRestoreClick} className="flex items-center justify-center gap-2 bg-brand-neutral-50 border border-brand-neutral-200 py-3.5 rounded-xl font-black text-[10px] text-brand-neutral-700 active:bg-white uppercase tracking-widest transition-all active:scale-95 shadow-sm">
+                <Upload size={16} className="text-brand-primary-600" strokeWidth={2.5} />
+                Restore
+              </button>
               <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".json" />
             </div>
-            <div className="p-3 bg-white rounded-lg border border-slate-200 text-left">
-               <div className="flex gap-2 text-amber-600 mb-1"><AlertTriangle size={14} className="shrink-0 mt-0.5" /><span className="text-[10px] font-bold uppercase tracking-wider">Storage Policy</span></div>
-               <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Your stats are private and stored locally. Clearing your browser cache or resetting the app will erase your records unless you have a backup file.</p>
+            <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
+               <AlertTriangle size={18} className="text-amber-600 shrink-0" />
+               <p className="text-[10px] text-amber-900 leading-relaxed font-bold uppercase tracking-tight">Your data is stored locally. If you clear browser cache without a backup, all stats will be lost.</p>
             </div>
-            <button onClick={clearData} className="w-full flex items-center justify-center gap-2 text-red-600 font-bold text-xs py-3 bg-red-50 border border-red-100 rounded-lg active:bg-red-100 transition-colors"><Trash2 size={16} />Hard Reset App</button>
+            <button onClick={clearData} className="w-full flex items-center justify-center gap-2 text-red-600 font-black text-[10px] py-4 bg-red-50 border border-red-100 rounded-xl active:bg-red-100 transition-all uppercase tracking-widest">
+              <Trash2 size={16} strokeWidth={2.5} />
+              Factory Reset App
+            </button>
           </div>
         </section>
       </div>
