@@ -13,12 +13,42 @@ interface SetTrackerProps {
   allStats: StatDefinition[];
 }
 
-const CATEGORY_THEMES: Record<StatCategory, { bg: string; text: string; border: string; btn: string }> = {
-  'Attacking': { bg: 'bg-brand-primary-900', text: 'text-brand-primary-900', border: 'border-brand-primary-100', btn: 'active:bg-brand-primary-50 active:border-brand-primary-900' },
-  'Serving': { bg: 'bg-brand-accent', text: 'text-brand-accent', border: 'border-brand-accent-light', btn: 'active:bg-brand-accent-light active:border-brand-accent' },
-  'Defense': { bg: 'bg-brand-success', text: 'text-brand-success', border: 'border-brand-success-light', btn: 'active:bg-brand-success-light active:border-brand-success' },
-  'Setting': { bg: 'bg-brand-primary-600', text: 'text-brand-primary-700', border: 'border-brand-primary-100', btn: 'active:bg-brand-primary-50 active:border-brand-primary-600' },
-  'Blocking': { bg: 'bg-brand-neutral-800', text: 'text-brand-neutral-800', border: 'border-brand-neutral-200', btn: 'active:bg-brand-neutral-50 active:border-brand-neutral-800' },
+const CATEGORY_THEMES: Record<StatCategory, { bg: string; text: string; border: string; btn: string; inactive: string }> = {
+  'Attacking': { 
+    bg: 'bg-brand-primary-900', 
+    text: 'text-brand-primary-900', 
+    border: 'border-brand-primary-100', 
+    btn: 'active:bg-brand-primary-50 active:border-brand-primary-900',
+    inactive: 'bg-brand-surface-attacking text-brand-primary-700 border-brand-primary-300' 
+  },
+  'Serving': { 
+    bg: 'bg-brand-accent', 
+    text: 'text-brand-accent', 
+    border: 'border-brand-accent-light', 
+    btn: 'active:bg-brand-accent-light active:border-brand-accent',
+    inactive: 'bg-brand-surface-serving text-brand-accent border-brand-accent-200' 
+  },
+  'Defense': { 
+    bg: 'bg-brand-success', 
+    text: 'text-brand-success', 
+    border: 'border-brand-success-light', 
+    btn: 'active:bg-brand-success-light active:border-brand-success',
+    inactive: 'bg-brand-surface-defense text-brand-success border-brand-success-200' 
+  },
+  'Setting': { 
+    bg: 'bg-brand-primary-600', 
+    text: 'text-brand-primary-700', 
+    border: 'border-brand-primary-100', 
+    btn: 'active:bg-brand-primary-50 active:border-brand-primary-600',
+    inactive: 'bg-brand-surface-setting text-brand-primary-700 border-brand-primary-200' 
+  },
+  'Blocking': { 
+    bg: 'bg-brand-neutral-800', 
+    text: 'text-brand-neutral-800', 
+    border: 'border-brand-neutral-200', 
+    btn: 'active:bg-brand-neutral-50 active:border-brand-neutral-800',
+    inactive: 'bg-brand-surface-blocking text-brand-neutral-600 border-brand-neutral-300' 
+  },
 };
 
 const SetTracker: React.FC<SetTrackerProps> = ({ 
@@ -56,7 +86,6 @@ const SetTracker: React.FC<SetTrackerProps> = ({
 
   const [activeTab, setActiveTab] = useState<StatCategory>(categories[0] || 'Attacking');
 
-  // Handle case where active tab might disappear if a category has no enabled stats
   useEffect(() => {
     if (categories.length > 0 && !categories.includes(activeTab)) {
       setActiveTab(categories[0]);
@@ -83,9 +112,9 @@ const SetTracker: React.FC<SetTrackerProps> = ({
   const lastStat = set.logs[set.logs.length - 1];
   const lastStatLabel = lastStat ? allStats.find(s => s.id === lastStat.statId)?.label : null;
 
-return (
+  return (
     <div className="flex flex-col min-h-screen bg-brand-neutral-50">
-      {/* Header - Standardized AceTrack Style */}
+      {/* Header */}
       <div className="bg-white border-b-2 border-brand-neutral-200 sticky top-0 z-40">
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -93,7 +122,7 @@ return (
               <ArrowLeft size={24} strokeWidth={2.5} />
             </button>
             <div>
-              <h2 className="text-base font-black text-brand-neutral-800 leading-none italic uppercase">Set {set.setNumber}</h2>
+              <h2 className="text-base font-black text-brand-neutral-800 leading-none italic uppercase tracking-tight">Set {set.setNumber}</h2>
               <p className="text-[10px] font-bold text-brand-neutral-400 mt-1 uppercase tracking-widest">vs {match.opponent}</p>
             </div>
           </div>
@@ -121,7 +150,7 @@ return (
           </div>
         </div>
 
-        {/* Category Tabs */}
+        {/* Category Tabs - Updated with Color Wash logic */}
         <div className="px-4 pb-3 flex justify-between gap-1.5">
           {categories.map((cat) => {
             const isActive = activeTab === cat;
@@ -135,7 +164,7 @@ return (
                 className={`flex-1 flex flex-col items-center justify-center py-2.5 rounded-xl transition-all duration-200 border-2
                   ${isActive 
                     ? `${theme.bg} text-white border-transparent shadow-lg scale-105 z-10 font-black italic` 
-                    : 'bg-white text-brand-neutral-400 font-bold border-brand-neutral-200 hover:border-brand-primary-200'
+                    : `${theme.inactive} font-bold shadow-inner opacity-90`
                   }
                 `}
               >
@@ -146,6 +175,7 @@ return (
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="p-4 space-y-4 pb-32">
         {categories.length === 0 ? (
           <div className="text-center py-20 px-10">
@@ -195,7 +225,7 @@ return (
               ))}
             </div>
 
-            {/* Feed Section */}
+            {/* Log Feed */}
             {set.logs.length > 0 && (
               <div className="pt-6 animate-in fade-in slide-in-from-bottom-2">
                 <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.25em] px-2 mb-3">
@@ -219,7 +249,7 @@ return (
         )}
       </div>
 
-      {/* Standardized AceTrack Toast */}
+      {/* Toast Notification */}
       {toastVisible && lastStatLabel && !set.isCompleted && (
         <div 
           key={set.logs.length} 

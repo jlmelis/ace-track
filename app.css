@@ -21,4 +21,10 @@
 
   --color-brand-accent: #6366F1;
   --color-brand-accent-light: #EEF2FF;
+
+  --color-brand-surface-attacking: #D1DBE5; /* Deep Navy wash */
+  --color-brand-surface-serving: #E0E7FF;   /* Indigo wash */
+  --color-brand-surface-defense: #D1FAE5;   /* Success Green wash */
+  --color-brand-surface-setting: #DDEAF1;   /* Steel Blue wash */
+  --color-brand-surface-blocking: #E2E8F0;  /* Slate wash */
 }
