@@ -1,5 +1,16 @@
 import React from 'react';
-import { ArrowLeft, Plus, ChevronRight, Download, Activity, Target, Shield, Zap, LayoutGrid, Trash2 } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Plus, 
+  ChevronRight, 
+  Download, 
+  Trash2,
+  Swords, // Attacking
+  Send,   // Serving
+  Hand,   // Defense
+  Orbit,  // Setting
+  Fence   // Blocking
+} from 'lucide-react';
 import { Match, PlayerProfile, StatDefinition, StatCategory, CATEGORY_ORDER } from '../types.ts';
 
 interface MatchDetailProps {
@@ -13,11 +24,11 @@ interface MatchDetailProps {
 }
 
 const CATEGORY_ICONS: Record<StatCategory, React.ReactNode> = {
-  'Attacking': <Zap size={12} />,
-  'Serving': <Target size={12} />,
-  'Defense': <Shield size={12} />,
-  'Setting': <LayoutGrid size={12} />,
-  'Blocking': <Activity size={12} />,
+  'Attacking': <Swords size={14} strokeWidth={2.5} />,
+  'Serving':   <Send size={14} strokeWidth={2.5} />,
+  'Defense':   <Fence size={14} strokeWidth={2.5} />,
+  'Setting':   <Orbit size={14} strokeWidth={2.5} />,
+  'Blocking':  <Hand size={14} strokeWidth={2.5} />,
 };
 
 const CATEGORY_COLORS: Record<StatCategory, string> = {

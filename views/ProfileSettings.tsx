@@ -1,5 +1,26 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ArrowLeft, Save, Check, Trash2, Database, Download, Upload, AlertTriangle, ChevronDown, ChevronUp, RefreshCw, Plus, Target, Zap, Shield, Activity, LayoutGrid, CheckSquare, Square } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Save, 
+  Check, 
+  Trash2, 
+  Database, 
+  Download, 
+  Upload, 
+  AlertTriangle, 
+  ChevronDown, 
+  ChevronUp, 
+  RefreshCw, 
+  Plus, 
+  CheckSquare, 
+  Square,
+  // New Category Icons
+  Swords, // Replaces Zap (Attacking)
+  Send,   // Replaces Target (Serving)
+  Hand,   // Replaces Shield (Defense)
+  Orbit,  // Replaces LayoutGrid (Setting)
+  Fence   // Replaces Activity (Blocking)
+} from 'lucide-react';
 import { PlayerProfile, DEFAULT_STATS, StatCategory, DEFAULT_ALIASES, CATEGORY_ORDER, StatDefinition } from '../types';
 
 interface ProfileSettingsProps {
@@ -12,11 +33,11 @@ interface ProfileSettingsProps {
 }
 
 const CATEGORY_ICONS: Record<StatCategory, React.ReactNode> = {
-  'Attacking': <Zap size={14} />,
-  'Serving': <Target size={14} />,
-  'Defense': <Shield size={14} />,
-  'Setting': <LayoutGrid size={14} />,
-  'Blocking': <Activity size={14} />,
+  'Attacking': <Swords size={14} strokeWidth={2.5} />,
+  'Serving': <Send size={14} strokeWidth={2.5} />,
+  'Defense': <Fence size={14} strokeWidth={2.5} />,
+  'Setting': <Orbit size={14} strokeWidth={2.5} />,
+  'Blocking': <Hand size={14} strokeWidth={2.5} />,
 };
 
 const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBack, customStats, onAddCustomStat, onDeleteCustomStat }) => {
