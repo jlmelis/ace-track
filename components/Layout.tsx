@@ -19,9 +19,9 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
       */}
       <header className="fixed top-0 left-0 right-0 bg-white border-b z-[100] pt-safe px-4 flex items-center justify-between shadow-sm" style={{ height: 'calc(var(--header-base-height) + env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2">
-          <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
-            <Activity size={20} strokeWidth={2.5} />
-          </div>
+            <div className=" p-1.5 rounded-lg">
+              <img src="/icon.png" alt="AceTrack Icon" style={{ width: 30, height: 30 }} />
+            </div>
           <div>
             <h1 className="text-base font-bold leading-none">AceTrack</h1>
             <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider mt-0.5">{playerName}</p>
