@@ -289,9 +289,10 @@ const App: React.FC = () => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-slate-400 space-y-4">
-          <Loader2 className="animate-spin" size={40} />
-          <p className="text-sm font-bold uppercase tracking-widest">Opening Database...</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-brand-neutral-400 space-y-4">
+          {/* Loading state uses brand-primary-900 */}
+          <Loader2 className="animate-spin text-brand-primary-900" size={40} strokeWidth={2.5} />
+          <p className="text-[10px] font-black uppercase tracking-[0.2em]">Opening Database</p>
         </div>
       );
     }
@@ -315,20 +316,39 @@ const App: React.FC = () => {
   return (
     <Layout currentView={currentView} setView={setCurrentView} playerName={data.profile.name} hasActiveSet={!!activeSetId}>
       {renderContent()}
+      
       {showOnboarding && <OnboardingModal onDismiss={dismissOnboarding} />}
+      
+      {/* PWA UPDATE PROMPT - Rebranded to Deep Navy/Metallic theme */}
       {showUpdatePrompt && (
         <div className="fixed bottom-24 left-4 right-4 z-[200] animate-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-indigo-600 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 border border-indigo-500">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-xl text-white animate-pulse"><RefreshCw size={20} /></div>
+          <div className="bg-brand-primary-900 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 border border-white/10 relative overflow-hidden">
+            {/* Visual background flourish */}
+            <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
+            
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="bg-white/10 p-2 rounded-xl text-brand-primary-400 animate-pulse border border-white/5">
+                <RefreshCw size={20} strokeWidth={3} />
+              </div>
               <div>
-                <h4 className="text-sm font-bold text-white leading-none">Update Available</h4>
-                <p className="text-[10px] text-indigo-100 mt-1 uppercase tracking-wider font-medium">AceTrack {VERSION}</p>
+                <h4 className="text-sm font-black text-white italic uppercase leading-none">Update Ready</h4>
+                <p className="text-[9px] text-brand-primary-200 mt-1 uppercase tracking-[0.2em] font-bold">AceTrack {VERSION}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-               <button onClick={handleUpdate} className="bg-white text-indigo-600 text-xs font-black px-4 py-2 rounded-xl shadow-sm active:scale-95 transition-all uppercase tracking-widest">Update Now</button>
-               <button onClick={() => setShowUpdatePrompt(false)} className="p-1 text-indigo-200 hover:text-white transition-colors"><X size={20} /></button>
+            
+            <div className="flex items-center gap-2 relative z-10">
+               <button 
+                 onClick={handleUpdate} 
+                 className="bg-white text-brand-primary-900 text-[10px] font-black px-4 py-2 rounded-xl shadow-lg active:scale-95 transition-all uppercase tracking-widest italic"
+               >
+                 Reload
+               </button>
+               <button 
+                 onClick={() => setShowUpdatePrompt(false)} 
+                 className="p-1 text-brand-primary-200 hover:text-white transition-colors"
+               >
+                 <X size={20} />
+               </button>
             </div>
           </div>
         </div>
