@@ -16,5 +16,10 @@ View your app in AI Studio: https://ai.studio/apps/drive/1sOnEiCn4u-kNG-rmw7as11
 1. Install dependencies:
    `npm install`
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+ 3. Run the app:
+    `npm run dev`
+
+## Development Notes
+
+- Service worker registration is automatically skipped during development (`npm run dev`) to avoid caching interference with Hot Module Replacement.
+- If you previously registered a service worker during development, you may need to unregister it via browser dev tools (Application → Service Workers).

@@ -82,6 +82,10 @@ const App: React.FC = () => {
 
   // Handle PWA Updates
   useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log('Development mode: skipping service worker registration');
+      return;
+    }
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(reg => {
         reg.update();

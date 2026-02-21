@@ -99,3 +99,38 @@ export const DEFAULT_ALIASES: Record<StatCategory, string> = {
   'Defense': 'DF',
   'Setting': 'ST'
 };
+
+export interface TournamentStats {
+  totals: Record<string, number>;
+  hittingPercentage: number;
+  kills: number;
+  attackErrors: number;
+  totalAttacks: number;
+}
+
+export function aggregateTournamentStats(event: Event): Record<string, number> {
+  const totals: Record<string, number> = {};
+  event.matches.forEach(match => {
+    match.sets.forEach(set => {
+      set.logs.forEach(log => {
+        totals[log.statId] = (totals[log.statId] || 0) + 1;
+      });
+    });
+  });
+  return totals;
+}
+
+export function calculateTournamentEfficiencies(totals: Record<string, number>): Omit<TournamentStats, 'totals'> {
+  const kills = totals['kill'] || 0;
+  const attackErrors = totals['attack_err'] || 0;
+  const attackAttempts = (totals['attack_attempt'] || 0) + (totals['attack_roll'] || 0) + (totals['attack_tip'] || 0);
+  const totalAttacks = kills + attackErrors + attackAttempts;
+  const hittingPercentage = totalAttacks > 0 ? (kills - attackErrors) / totalAttacks : 0;
+  
+  return {
+    hittingPercentage,
+    kills,
+    attackErrors,
+    totalAttacks
+  };
+}

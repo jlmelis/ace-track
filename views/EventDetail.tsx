@@ -1,6 +1,89 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Plus, ChevronRight, Activity, Calendar, Download, Trash2 } from 'lucide-react';
-import { Event, StatDefinition } from '../types';
+import React, { useState, useMemo } from 'react';
+import { ArrowLeft, Plus, ChevronRight, Activity, Calendar, Download, Trash2, Swords, Send, Fence, Orbit, Hand, ChevronDown, ChevronUp } from 'lucide-react';
+import { Event, StatDefinition, aggregateTournamentStats, calculateTournamentEfficiencies, TournamentStats, CATEGORY_ORDER, StatCategory } from '../types';
+
+const CATEGORY_ICONS: Record<StatCategory, React.ReactNode> = {
+  'Attacking': <Swords size={14} strokeWidth={2.5} />,
+  'Serving':   <Send size={14} strokeWidth={2.5} />,
+  'Defense':   <Fence size={14} strokeWidth={2.5} />,
+  'Setting':   <Orbit size={14} strokeWidth={2.5} />,
+  'Blocking':  <Hand size={14} strokeWidth={2.5} />,
+};
+
+const CATEGORY_COLORS: Record<StatCategory, string> = {
+  'Attacking': 'text-brand-primary-700 bg-brand-primary-50', // Steel Blue
+  'Serving': 'text-brand-accent font-bold bg-brand-accent-light', // Energy Indigo
+  'Defense': 'text-brand-success font-bold bg-brand-success-light', // Success Green
+  'Setting': 'text-brand-primary-900 bg-brand-primary-200', // Deep Navy
+  'Blocking': 'text-brand-neutral-500 bg-brand-neutral-50', // Slate
+};
+
+interface TournamentStatsSectionProps {
+  totals: Record<string, number>;
+  efficiencies: Omit<TournamentStats, 'totals'>;
+  allStats: StatDefinition[];
+}
+
+const TournamentStatsSection: React.FC<TournamentStatsSectionProps> = ({ totals, efficiencies, allStats }) => {
+  const { hittingPercentage, kills, attackErrors, totalAttacks } = efficiencies;
+  
+  return (
+    <section className="space-y-4 pt-4 border-t border-brand-neutral-200">
+      <div className="px-1">
+        <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.2em]">Tournament Summary</h3>
+      </div>
+
+      {totalAttacks > 0 && (
+        <div className="bg-brand-neutral-800 text-white rounded-2xl p-5 flex items-center justify-between shadow-xl shadow-brand-primary-900/10 overflow-hidden relative">
+          <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-brand-primary-500/10 to-transparent pointer-events-none" />
+          <div className="relative z-10">
+            <p className="text-[9px] font-black text-brand-primary-400 uppercase tracking-[0.2em]">Tournament Efficiency</p>
+            <p className="text-[10px] text-brand-neutral-400 font-bold mt-1 uppercase">K:{kills} | E:{attackErrors} | T:{totalAttacks}</p>
+          </div>
+          <div className="text-right relative z-10">
+            <p className={`text-3xl font-black italic ${
+              hittingPercentage >= 0.3 ? 'text-brand-success' : 
+              hittingPercentage >= 0.1 ? 'text-brand-primary-400' : 
+              'text-brand-neutral-200'
+            }`}>
+              {hittingPercentage.toFixed(3)}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-6">
+        {CATEGORY_ORDER.map(cat => {
+          const catStats = allStats.filter(s => s.category === cat && totals[s.id]);
+          if (catStats.length === 0) return null;
+
+          return (
+            <div key={cat} className="space-y-2">
+              <div className="flex items-center gap-2 px-1">
+                <div className={`p-1 rounded-md ${CATEGORY_COLORS[cat]}`}>
+                  {CATEGORY_ICONS[cat]}
+                </div>
+                <span className="text-[10px] font-black text-brand-neutral-500 uppercase tracking-widest">{cat}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {catStats.map(stat => (
+                  <div key={stat.id} className="bg-white border border-brand-neutral-200 rounded-xl p-3 flex items-center justify-between shadow-sm">
+                    <span className="text-[10px] font-bold text-brand-neutral-500 uppercase tracking-tight truncate pr-2">
+                      {stat.label}
+                    </span>
+                    <span className="text-xs font-black text-brand-neutral-800 tabular-nums">
+                      {totals[stat.id] || 0}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
 
 interface EventDetailProps {
   event: Event;
@@ -15,6 +98,10 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
   const [isAdding, setIsAdding] = useState(false);
   const [opponent, setOpponent] = useState('');
   const [matchDate, setMatchDate] = useState(event.date); // Default to event start date
+  const [showTournamentStats, setShowTournamentStats] = useState(true);
+
+  const tournamentTotals = useMemo(() => aggregateTournamentStats(event), [event]);
+  const tournamentEfficiencies = useMemo(() => calculateTournamentEfficiencies(tournamentTotals), [tournamentTotals]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +137,34 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
       return;
     }
 
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    // Add tournament totals section
+    const tournamentRows = [];
+    // Add empty row as separator
+    tournamentRows.push(['', '', '', '', '', ''].map(sanitize));
+    // Add section header
+    tournamentRows.push(['TOURNAMENT TOTALS', '', '', '', '', ''].map(sanitize));
+    
+    // Add rows for each stat with non-zero total
+    allStats.forEach(stat => {
+      const total = tournamentTotals[stat.id] || 0;
+      if (total > 0) {
+        tournamentRows.push([
+          'Tournament Total',
+          '',
+          '',
+          stat.category,
+          stat.label,
+          total.toString()
+        ].map(sanitize));
+      }
+    });
+
+    const allCSVRows = [
+      headers.join(','),
+      ...rows.map(r => r.join(',')),
+      ...tournamentRows.map(r => r.join(','))
+    ];
+    const csvContent = allCSVRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -96,6 +210,26 @@ return (
       </div>
 
       <div className="p-4 space-y-6">
+        {event.matches.length > 0 && (
+          <>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-brand-neutral-500 uppercase tracking-widest">Tournament Stats</h3>
+              <button 
+                onClick={() => setShowTournamentStats(!showTournamentStats)}
+                className="p-1 text-brand-neutral-400 hover:text-brand-primary-900 transition-colors"
+              >
+                {showTournamentStats ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+            </div>
+            {showTournamentStats && (
+              <TournamentStatsSection 
+                totals={tournamentTotals}
+                efficiencies={tournamentEfficiencies}
+                allStats={allStats}
+              />
+            )}
+          </>
+        )}
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold text-brand-neutral-500 uppercase tracking-widest">Matches</h3>
           <button onClick={() => setIsAdding(!isAdding)} className="flex items-center gap-1.5 text-white font-bold text-sm bg-brand-primary-900 px-4 py-2 rounded-full shadow-lg active:scale-95 transition-transform">
