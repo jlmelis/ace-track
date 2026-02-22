@@ -1,5 +1,6 @@
 import React from 'react';
 import { Home, Settings, Trophy, Activity } from 'lucide-react';
+import VersionDisplay from './VersionDisplay.tsx';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -7,9 +8,10 @@ interface LayoutProps {
   setView: (v: any) => void;
   playerName: string;
   hasActiveSet: boolean;
+  version?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerName, hasActiveSet }) => {
+const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerName, hasActiveSet, version }) => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* 
@@ -17,7 +19,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
         pt-safe handles the camera notch.
         h-[calc(var(--header-base-height)+env(safe-area-inset-top))] ensures the background fills the whole top.
       */}
-      <header className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-100 pt-safe px-4 flex items-center justify-between" style={{ height: 'calc(var(--header-base-height) + env(safe-area-inset-top))' }}>
+       <header className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-100 pt-safe px-4 flex items-center justify-between" style={{ height: 'calc(var(--header-base-height) + env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2">
             <div className=" p-1.5 rounded-lg">
               <img src="/icon.png" alt="AceTrack Icon" style={{ width: 30, height: 30 }} />
@@ -27,12 +29,15 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
             <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider mt-0.5">{playerName}</p>
           </div>
         </div>
-        <button 
-          onClick={() => setView('settings')}
-          className={`p-2 rounded-full transition-colors ${currentView === 'settings' ? 'bg-brand-primary-50 text-brand-primary' : 'text-slate-200 active:bg-slate-100'}`}
-        >
-          <Settings size={22} />
-        </button>
+        <div className="flex items-center gap-2">
+          <VersionDisplay version={version} className="hidden sm:block" />
+          <button 
+            onClick={() => setView('settings')}
+            className={`p-2 rounded-full transition-colors ${currentView === 'settings' ? 'bg-brand-primary-50 text-brand-primary' : 'text-slate-200 active:bg-slate-100'}`}
+          >
+            <Settings size={22} />
+          </button>
+        </div>
       </header>
 
       {/* Main Content with top offset to clear the fixed header */}
