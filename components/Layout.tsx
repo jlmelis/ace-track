@@ -1,5 +1,6 @@
 import React from 'react';
 import { Home, Settings, Trophy, Activity } from 'lucide-react';
+import VersionDisplay from './VersionDisplay.tsx';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -7,9 +8,10 @@ interface LayoutProps {
   setView: (v: any) => void;
   playerName: string;
   hasActiveSet: boolean;
+  version?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerName, hasActiveSet }) => {
+const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerName, hasActiveSet, version }) => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* 
@@ -17,7 +19,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
         pt-safe handles the camera notch.
         h-[calc(var(--header-base-height)+env(safe-area-inset-top))] ensures the background fills the whole top.
       */}
-      <header className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-100 pt-safe px-4 flex items-center justify-between" style={{ height: 'calc(var(--header-base-height) + env(safe-area-inset-top))' }}>
+       <header className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-100 pt-safe px-4 flex items-center justify-between" style={{ height: 'calc(var(--header-base-height) + env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-2">
             <div className=" p-1.5 rounded-lg">
               <img src="/icon.png" alt="AceTrack Icon" style={{ width: 30, height: 30 }} />
@@ -49,6 +51,9 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
             label="Home" 
             onClick={() => setView('dashboard')} 
           />
+          <div className="flex flex-col items-center justify-center">
+            <VersionDisplay version={version} className="text-center" />
+          </div>
           <NavButton 
             active={currentView === 'set'} 
             icon={<Trophy size={22} />} 

@@ -14,7 +14,7 @@ import OnboardingModal from './components/OnboardingModal.tsx';
 
 const STORAGE_KEY_OLD = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
-const VERSION = 'v25';
+const VERSION = 'v1.0.8';
 
 const App: React.FC = () => {
   // Navigation & UI State
@@ -82,7 +82,7 @@ const App: React.FC = () => {
 
   // Handle PWA Updates
   useEffect(() => {
-    if (import.meta.env.DEV) {
+    if (import.meta.env.MODE === 'development') {
       console.log('Development mode: skipping service worker registration');
       return;
     }
@@ -318,7 +318,13 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout currentView={currentView} setView={setCurrentView} playerName={data.profile.name} hasActiveSet={!!activeSetId}>
+    <Layout 
+      currentView={currentView} 
+      setView={setCurrentView} 
+      playerName={data.profile.name} 
+      hasActiveSet={!!activeSetId}
+      version={VERSION}
+    >
       {renderContent()}
       
       {showOnboarding && <OnboardingModal onDismiss={dismissOnboarding} />}

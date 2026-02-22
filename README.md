@@ -23,3 +23,15 @@ View your app in AI Studio: https://ai.studio/apps/drive/1sOnEiCn4u-kNG-rmw7as11
 
 - Service worker registration is automatically skipped during development (`npm run dev`) to avoid caching interference with Hot Module Replacement.
 - If you previously registered a service worker during development, you may need to unregister it via browser dev tools (Application → Service Workers).
+
+## Version Management
+
+AceTrack has automated version management to ensure PWA updates are properly recognized by users. See [docs/version-management.md](docs/version-management.md) for detailed documentation.
+
+### Key Commands:
+- `npm run build:prod` - Production build with version validation and automatic version bumping
+- `npm run version:bump` - Manually bump version and synchronize all files
+- `npm run version:validate` - Validate version without building
+
+### Production Deployments:
+Always use `npm run build:prod` for production deployments to ensure version numbers are incremented and synchronized across all files.

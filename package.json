@@ -1,12 +1,15 @@
 {
   "name": "acetrack-volleyball",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.8",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:prod": "node scripts/validate-version.js && node scripts/version-bump.js && vite build",
+    "version:bump": "node scripts/version-bump.js",
+    "version:validate": "node scripts/validate-version.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
