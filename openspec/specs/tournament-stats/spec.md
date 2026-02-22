@@ -3,9 +3,7 @@
 ## Purpose
 
 Define tournament-level statistics aggregation and display for the AceTrack volleyball statistics tracker, providing rollup views of player performance across multiple matches.
-
 ## Requirements
-
 ### Requirement: Tournament statistics aggregation
 The system SHALL aggregate statistics across all matches within a tournament, calculating totals for each tracked stat and computing tournament-level efficiencies.
 
@@ -26,19 +24,27 @@ The system SHALL display tournament-level statistics in the EventDetail view, pr
 
 #### Scenario: Shows tournament stats section
 - **WHEN** a user views a tournament (EventDetail)
-- **THEN** the system SHALL display a "Tournament Stats" section above the matches list
+- **THEN** the system SHALL display a "Tournament Stats" section below the matches list
 
 #### Scenario: Displays key metrics
-- **WHEN** tournament stats are available
+- **WHEN** tournament stats are available and expanded
 - **THEN** the system SHALL display totals for each stat category (Attacking, Serving, Defense, Setting, Blocking) similar to match-level display
 
 #### Scenario: Shows efficiency score
-- **WHEN** attacking stats are present
+- **WHEN** attacking stats are present and expanded
 - **THEN** the system SHALL display tournament hitting percentage with formatting consistent with match-level efficiency display
 
 #### Scenario: Updates in real-time
 - **WHEN** stats are recorded or matches are added/removed from the tournament
 - **THEN** the tournament stats display SHALL update immediately to reflect changes
+
+#### Scenario: Collapsed by default
+- **WHEN** a user views a tournament (EventDetail)
+- **THEN** the tournament stats section SHALL be collapsed by default to save vertical screen space
+
+#### Scenario: Toggle expansion
+- **WHEN** the user interacts with the tournament stats header
+- **THEN** the system SHALL toggle the visibility of the detailed metrics and efficiency scores
 
 ### Requirement: Tournament stats export
 The system SHALL include tournament-level statistics in the CSV export functionality available from the EventDetail view.
@@ -61,3 +67,4 @@ The system SHALL ensure tournament stats aggregation does not negatively impact 
 #### Scenario: Consistent calculations
 - **WHEN** stats are aggregated at tournament level
 - **THEN** the calculations SHALL match manual summation of match-level totals
+
