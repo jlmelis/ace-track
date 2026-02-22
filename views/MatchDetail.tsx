@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  ArrowLeft, 
-  Plus, 
-  ChevronRight, 
-  Download, 
+import {
+  ArrowLeft,
+  Plus,
+  ChevronRight,
+  Download,
   Trash2,
   Swords, // Attacking
   Send,   // Serving
@@ -12,6 +12,7 @@ import {
   Fence   // Blocking
 } from 'lucide-react';
 import { Match, PlayerProfile, StatDefinition, StatCategory, CATEGORY_ORDER } from '../types.ts';
+import { Button } from '../components/ui/button';
 
 interface MatchDetailProps {
   match: Match;
@@ -25,10 +26,10 @@ interface MatchDetailProps {
 
 const CATEGORY_ICONS: Record<StatCategory, React.ReactNode> = {
   'Attacking': <Swords size={14} strokeWidth={2.5} />,
-  'Serving':   <Send size={14} strokeWidth={2.5} />,
-  'Defense':   <Fence size={14} strokeWidth={2.5} />,
-  'Setting':   <Orbit size={14} strokeWidth={2.5} />,
-  'Blocking':  <Hand size={14} strokeWidth={2.5} />,
+  'Serving': <Send size={14} strokeWidth={2.5} />,
+  'Defense': <Fence size={14} strokeWidth={2.5} />,
+  'Setting': <Orbit size={14} strokeWidth={2.5} />,
+  'Blocking': <Hand size={14} strokeWidth={2.5} />,
 };
 
 const CATEGORY_COLORS: Record<StatCategory, string> = {
@@ -62,7 +63,7 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
   const handleExport = () => {
     const sanitize = (val: string) => `"${val.replace(/"/g, '""')}"`;
     const headers = ['Set', 'Category', 'Metric', 'Timestamp'];
-    const rows = match.sets.flatMap(set => 
+    const rows = match.sets.flatMap(set =>
       set.logs.map(log => {
         const statDef = allStats.find(s => s.id === log.statId);
         return [
@@ -73,7 +74,7 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
         ].map(sanitize);
       })
     );
-    
+
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -83,26 +84,27 @@ const MatchDetail: React.FC<MatchDetailProps> = ({ match, profile, onBack, onAdd
     link.click();
   };
 
-return (
+  return (
     <div className="animate-in slide-in-from-right-4 duration-200">
       {/* Header - Unified with Dashboard & Event Detail */}
       <div className="bg-white p-4 border-b border-brand-neutral-200 flex items-center justify-between sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-1 -ml-1 text-brand-neutral-500 active:text-brand-primary-900 rounded-full transition-colors">
+          <Button variant="ghost" size="icon" onClick={onBack} className="text-brand-neutral-500 rounded-full hover:bg-brand-neutral-50 transition-colors">
             <ArrowLeft size={24} strokeWidth={2.5} />
-          </button>
+          </Button>
           <div className="min-w-0">
             <h2 className="text-lg font-bold text-brand-neutral-800 truncate uppercase tracking-tight">vs {match.opponent}</h2>
             <p className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-widest leading-none mt-1">{match.date}</p>
           </div>
         </div>
-        <button 
+        <Button
+          variant="outline"
           onClick={handleExport}
-          className="flex items-center gap-1.5 text-brand-primary-900 font-bold text-xs bg-brand-primary-50 px-3 py-2 rounded-lg border border-brand-primary-200 active:scale-95 transition-all"
+          className="gap-1.5 text-brand-primary-900 font-bold text-xs bg-brand-primary-50 border-brand-primary-200 hover:bg-brand-primary-100"
         >
           <Download size={14} strokeWidth={3} />
           CSV
-        </button>
+        </Button>
       </div>
 
       <div className="p-4 space-y-8">
@@ -110,13 +112,13 @@ return (
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.2em]">Match Sets</h3>
-            <button 
+            <Button
               onClick={onAddSet}
-              className="flex items-center gap-1.5 text-white font-bold text-[11px] bg-brand-primary-900 px-4 py-2 rounded-full active:scale-95 transition-transform uppercase tracking-wider shadow-md"
+              className="gap-1.5 font-bold text-[11px] rounded-full active:scale-95 transition-transform uppercase tracking-wider shadow-md"
             >
               <Plus size={14} strokeWidth={4} />
               Track Set
-            </button>
+            </Button>
           </div>
 
           <div className="grid gap-2">
@@ -126,20 +128,19 @@ return (
               </div>
             ) : (
               match.sets.map(set => (
-                <div 
+                <div
                   key={set.id}
                   className="bg-white border border-brand-neutral-200 rounded-2xl overflow-hidden text-left flex items-stretch shadow-sm active:scale-[0.99] transition-all group"
                 >
-                  <button 
+                  <button
                     onClick={() => onSelectSet(set.id)}
                     className="flex-1 p-4 text-left flex items-center justify-between active:bg-brand-primary-50 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm border-2 ${
-                        set.isCompleted 
-                        ? 'bg-brand-success-light text-brand-success border-brand-success/20' 
-                        : 'bg-brand-accent-light text-brand-accent border-brand-accent/20 animate-pulse'
-                      }`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm border-2 ${set.isCompleted
+                          ? 'bg-brand-success-light text-brand-success border-brand-success/20'
+                          : 'bg-brand-accent-light text-brand-accent border-brand-accent/20 animate-pulse'
+                        }`}>
                         {set.setNumber}
                       </div>
                       <div>
@@ -151,12 +152,13 @@ return (
                     </div>
                     <ChevronRight className="text-brand-neutral-200 group-active:text-brand-primary-900" size={20} strokeWidth={3} />
                   </button>
-                  <button 
+                  <Button
+                    variant="ghost"
                     onClick={() => onDeleteSet(set.id)}
-                    className="bg-brand-neutral-50 px-4 border-l border-brand-neutral-200 text-brand-neutral-400 hover:text-red-500 transition-colors flex items-center justify-center"
+                    className="h-auto rounded-none bg-brand-neutral-50 px-4 border-l border-brand-neutral-200 text-brand-neutral-400 hover:text-red-500 hover:bg-brand-neutral-100 transition-colors"
                   >
                     <Trash2 size={18} />
-                  </button>
+                  </Button>
                 </div>
               ))
             )}
@@ -178,11 +180,10 @@ return (
                   <p className="text-[10px] text-brand-neutral-400 font-bold mt-1 uppercase">K:{kills} | E:{attackErrors} | T:{totalAttacks}</p>
                 </div>
                 <div className="text-right relative z-10">
-                  <p className={`text-3xl font-black italic ${
-                    hittingPercentage >= 0.3 ? 'text-brand-success' : 
-                    hittingPercentage >= 0.1 ? 'text-brand-primary-400' : 
-                    'text-brand-neutral-200'
-                  }`}>
+                  <p className={`text-3xl font-black italic ${hittingPercentage >= 0.3 ? 'text-brand-success' :
+                      hittingPercentage >= 0.1 ? 'text-brand-primary-400' :
+                        'text-brand-neutral-200'
+                    }`}>
                     {hittingPercentage.toFixed(3)}
                   </p>
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Swords, Send, Fence, Orbit, Hand } from 'lucide-react';
 import { StatDefinition, TournamentStats as ITournamentStats, CATEGORY_ORDER, StatCategory } from '../../types';
+import { Button } from '../ui/button';
 
 const CATEGORY_ICONS: Record<StatCategory, React.ReactNode> = {
     'Attacking': <Swords size={14} strokeWidth={2.5} />,
@@ -32,12 +33,14 @@ export const TournamentStats: React.FC<TournamentStatsProps> = ({ totals, effici
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold text-brand-neutral-500 uppercase tracking-widest">Tournament Stats</h3>
-                <button
+                <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="p-1 text-brand-neutral-400 hover:text-brand-primary-900 transition-colors"
+                    className="h-8 w-8 text-brand-neutral-400 hover:text-brand-primary-900 hover:bg-brand-neutral-50 transition-colors"
                 >
                     {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </button>
+                </Button>
             </div>
 
             {isExpanded && (

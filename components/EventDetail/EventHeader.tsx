@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft, Download } from 'lucide-react';
 import { Event } from '../../types';
+import { Button } from '../ui/button';
 
 interface EventHeaderProps {
     event: Event;
@@ -22,9 +23,9 @@ export const EventHeader: React.FC<EventHeaderProps> = ({ event, onBack, onExpor
     return (
         <div className="bg-white p-4 border-b border-brand-neutral-200 flex items-center justify-between sticky top-0 z-40 shadow-sm">
             <div className="flex items-center gap-4 min-w-0">
-                <button onClick={onBack} className="p-1 -ml-1 text-brand-neutral-500 hover:text-brand-primary-900 transition-colors">
+                <Button variant="ghost" size="icon" onClick={onBack} className="text-brand-neutral-500 rounded-full hover:bg-brand-neutral-50 transition-colors">
                     <ArrowLeft size={24} strokeWidth={2.5} />
-                </button>
+                </Button>
                 <div className="min-w-0">
                     <h2 className="text-lg font-bold text-brand-neutral-800 truncate uppercase tracking-tight leading-tight">{event.name}</h2>
                     <div className="flex items-center gap-2 text-[10px] font-bold text-brand-neutral-500 uppercase tracking-widest">
@@ -35,10 +36,10 @@ export const EventHeader: React.FC<EventHeaderProps> = ({ event, onBack, onExpor
                 </div>
             </div>
             {canExport && (
-                <button onClick={onExport} className="flex items-center gap-1.5 text-brand-primary-900 font-bold text-xs bg-brand-primary-50 px-3 py-2 rounded-lg active:scale-95 transition-all">
+                <Button variant="outline" onClick={onExport} className="gap-1.5 text-brand-primary-900 font-bold text-xs bg-brand-primary-50 border-brand-primary-200 hover:bg-brand-primary-100">
                     <Download size={14} strokeWidth={3} />
                     REPORT
-                </button>
+                </Button>
             )}
         </div>
     );

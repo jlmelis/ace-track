@@ -1,5 +1,7 @@
 import React from 'react';
 import { Hand, Download, Swords, Trophy, Check } from 'lucide-react';
+import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 
 interface OnboardingModalProps {
   onDismiss: () => void;
@@ -7,9 +9,10 @@ interface OnboardingModalProps {
 
 const OnboardingModal: React.FC<OnboardingModalProps> = ({ onDismiss }) => {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-neutral-800/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-6 duration-500 max-h-[90vh] flex flex-col">
-        
+    <Dialog open={true} onOpenChange={(open) => { if (!open) onDismiss(); }}>
+      <DialogContent className="p-0 overflow-hidden rounded-[2rem] max-w-sm border-0 shadow-2xl bg-white flex flex-col gap-0 outline-none [&>button]:hidden">
+        <DialogTitle className="sr-only">Welcome to AceTrack</DialogTitle>
+
         {/* Header Section - Deep Navy AceTrack Theme */}
         <div className="bg-brand-primary-900 p-6 text-center text-white relative shrink-0">
           <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
@@ -21,10 +24,10 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onDismiss }) => {
             Volleyball Performance Tracking
           </p>
         </div>
-        
+
         {/* Features Section */}
         <div className="p-6 space-y-5 overflow-y-auto">
-          
+
           {/* Privacy Feature */}
           <div className="flex gap-4">
             <div className="bg-brand-success-light text-brand-success p-2 rounded-xl h-fit shrink-0">
@@ -65,16 +68,16 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onDismiss }) => {
           </div>
 
           {/* CTA Button */}
-          <button 
+          <Button
             onClick={onDismiss}
-            className="w-full bg-brand-primary-900 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl shadow-brand-primary-900/20 mt-4 uppercase tracking-[0.2em] text-xs italic"
+            className="w-full font-black h-14 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl shadow-brand-primary-900/20 mt-4 uppercase tracking-[0.2em] text-xs italic"
           >
             <Check size={18} strokeWidth={4} />
             Let's Play
-          </button>
+          </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

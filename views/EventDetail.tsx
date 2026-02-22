@@ -6,6 +6,7 @@ import { EventHeader } from '../components/EventDetail/EventHeader';
 import { TournamentStats } from '../components/EventDetail/TournamentStats';
 import { CreateMatchForm } from '../components/EventDetail/CreateMatchForm';
 import { MatchList } from '../components/EventDetail/MatchList';
+import { Button } from '../components/ui/button';
 
 interface EventDetailProps {
   event: Event;
@@ -43,13 +44,13 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onBack, onAddMatch, on
       <div className="p-4 space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold text-brand-neutral-500 uppercase tracking-widest">Matches</h3>
-          <button
+          <Button
             onClick={() => setIsAdding(!isAdding)}
-            className="flex items-center gap-1.5 text-white font-bold text-sm bg-brand-primary-900 px-4 py-2 rounded-full shadow-lg active:scale-95 transition-transform"
+            className="gap-1.5 font-bold text-sm rounded-full shadow-lg active:scale-95 transition-transform"
           >
             <Plus size={18} strokeWidth={3} />
             NEW MATCH
-          </button>
+          </Button>
         </div>
 
         {isAdding && (
