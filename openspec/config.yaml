@@ -1,20 +1,22 @@
 schema: spec-driven
 
-# Project context (optional)
+# Project context
 # This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Tech stack: React 19, Vite 6, Tailwind CSS 4, TypeScript
+  Domain: AceTrack Volleyball - A local-first PWA for tracking volleyball matches and stats
+  State Management: React local state with IndexedDB (via db.ts) for persistence, no external state libraries
+  Styling: Tailwind CSS strictly. Uses a brand color palette (e.g. brand-primary, brand-neutral). Use Lucide-react for icons.
+  Components: Functional components (React.FC) with explicit interface props.
+  Architecture: Code in /components (UI) and /views (Pages), /db.ts for storage, /types.ts for interfaces.
+  Important: The app must function as an offline-first PWA, relying on sw.js and IndexedDB.
 
-# Per-artifact rules (optional)
+# Per-artifact rules
 # Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  spec:
+    - Prefer native browser implementations (IndexedDB, Web Workers) where applicable over third-party libraries.
+    - Ensure new UI components follow the brand's Tailwind aesthetic (bold text, clean layouts).
+  tasks:
+    - Ensure task breakdowns include testing offline capabilities if data models change.
+    - Break tasks into chunks no larger than 2 hours of implementation.
