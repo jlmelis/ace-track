@@ -414,7 +414,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
             <div className="flex items-center gap-4 text-white relative z-10">
               <div className="bg-white/10 text-brand-primary-400 p-3 rounded-xl backdrop-blur-sm border border-white/5"><Database size={20} /></div>
               <div>
-                <h4 className="text-xs font-black uppercase italic tracking-wider">AceTrack v18</h4>
+                <h4 className="text-xs font-black uppercase italic tracking-wider">AceTrack v1.0.10</h4>
                 <p className="text-[10px] text-brand-neutral-400 font-bold uppercase tracking-widest">IndexedDB Local Storage</p>
               </div>
             </div>

@@ -138,29 +138,31 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
           </div>
         ) : (
           events.map(event => (
-            <Card key={event.id} className="p-0 flex-row gap-0 border-brand-neutral-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform flex">
-              <button onClick={() => onSelectEvent(event.id)} className="flex-1 p-4 text-left flex items-center justify-between group bg-transparent">
-                <div className="space-y-1">
-                  <h3 className="font-bold text-brand-neutral-800 text-lg uppercase italic tracking-tight">{event.name}</h3>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-neutral-500 font-medium">
-                    <span className="flex items-center gap-1">
-                      <Calendar size={14} className="text-brand-primary-600" strokeWidth={2.5} />
-                      {formatEventDate(event)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin size={14} className="text-brand-primary-400" />
-                      {event.location || 'Unknown Location'}
-                    </span>
-                    <span className="flex items-center gap-1 font-bold text-brand-primary-900 bg-brand-primary-50 px-2 py-0.5 rounded uppercase tracking-tighter">
-                      {event.matches.length} Matches
-                    </span>
+            <Card key={event.id} className="border-brand-neutral-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform p-0 py-0 gap-0">
+              <div className="flex w-full items-stretch">
+                <button onClick={() => onSelectEvent(event.id)} className="flex-1 p-4 text-left flex items-center justify-between group bg-transparent">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-brand-neutral-800 text-lg uppercase italic tracking-tight">{event.name}</h3>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-neutral-500 font-medium">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={14} className="text-brand-primary-600" strokeWidth={2.5} />
+                        {formatEventDate(event)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MapPin size={14} className="text-brand-primary-400" />
+                        {event.location || 'Unknown Location'}
+                      </span>
+                      <span className="flex items-center gap-1 font-bold text-brand-primary-900 bg-brand-primary-50 px-2 py-0.5 rounded uppercase tracking-tighter">
+                        {event.matches.length} Matches
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <ChevronRight className="text-brand-neutral-200 group-active:text-brand-primary-900" size={24} strokeWidth={3} />
-              </button>
-              <Button variant="ghost" onClick={() => onDeleteEvent(event.id)} className="h-auto rounded-none bg-brand-neutral-50 px-4 border-l border-brand-neutral-200 text-brand-neutral-400 hover:text-red-500 hover:bg-brand-neutral-100 transition-colors">
-                <Trash2 size={18} />
-              </Button>
+                  <ChevronRight className="text-brand-neutral-200 group-active:text-brand-primary-900" size={24} strokeWidth={3} />
+                </button>
+                <Button variant="ghost" onClick={() => onDeleteEvent(event.id)} className="h-auto rounded-none bg-brand-neutral-50 px-4 border-l border-brand-neutral-200 text-brand-neutral-400 hover:text-red-500 hover:bg-brand-neutral-100 transition-colors">
+                  <Trash2 size={18} />
+                </Button>
+              </div>
             </Card>
           ))
         )}
