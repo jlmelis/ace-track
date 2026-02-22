@@ -23,7 +23,7 @@ export const MatchList: React.FC<MatchListProps> = ({ matches, onSelectMatch, on
     return (
         <div className="grid gap-3">
             {[...matches].sort((a, b) => b.date.localeCompare(a.date)).map(match => (
-                <Card key={match.id} className="border-brand-neutral-200 rounded-2xl overflow-hidden shadow-sm active:scale-[0.99] transition-all flex">
+                <Card key={match.id} className="p-0 flex-row gap-0 border-brand-neutral-200 rounded-2xl overflow-hidden shadow-sm active:scale-[0.99] transition-all flex">
                     <button onClick={() => onSelectMatch(match.id)} className="flex-1 p-5 text-left flex items-center justify-between group bg-transparent">
                         <div className="space-y-1">
                             <h4 className="font-black text-brand-neutral-800 text-lg italic uppercase tracking-tight">vs {match.opponent}</h4>

@@ -212,7 +212,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
         {/* 1. Player Details */}
         <section className="space-y-3">
           <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.25em] px-1">Player Profile</h3>
-          <Card className="border-brand-neutral-200 rounded-2xl shadow-sm">
+          <Card className="p-0 gap-0 border-brand-neutral-200 rounded-2xl shadow-sm">
             <CardContent className="grid gap-4 p-5">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-brand-primary-700 uppercase tracking-wider ml-1">Full Name</label>
@@ -259,7 +259,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
           </div>
 
           {isAddingStat && (
-            <Card className="border-2 border-brand-primary-200 rounded-2xl shadow-xl shadow-brand-primary-900/5 animate-in zoom-in-95">
+            <Card className="p-0 gap-0 border-2 border-brand-primary-200 rounded-2xl shadow-xl shadow-brand-primary-900/5 animate-in zoom-in-95">
               <CardContent className="p-0">
                 <form onSubmit={handleAddStatSubmit} className="p-5 space-y-4">
                   <div className="space-y-1.5">
@@ -301,7 +301,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
               <p className="text-[10px] text-brand-neutral-400 uppercase tracking-widest text-center py-8 bg-brand-neutral-50 rounded-2xl border-2 border-dashed border-brand-neutral-200 font-bold">No custom metrics</p>
             ) : (
               customStats.map(stat => (
-                <Card key={stat.id} className="border-brand-neutral-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                <Card key={stat.id} className="p-4 flex-row gap-0 border-brand-neutral-200 rounded-2xl flex items-center justify-between shadow-sm">
                   <div className="flex items-center gap-3">
                     <div className="bg-brand-primary-50 p-2.5 rounded-xl text-brand-primary-600">{CATEGORY_ICONS[stat.category]}</div>
                     <div>
@@ -330,7 +330,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
               const isAllTracked = trackedCount === catStats.length;
 
               return (
-                <Card key={cat} className="border-brand-neutral-200 rounded-2xl overflow-hidden shadow-sm">
+                <Card key={cat} className="p-0 gap-0 border-brand-neutral-200 rounded-2xl overflow-hidden shadow-sm">
                   <button
                     onClick={() => toggleCategory(cat)}
                     className="w-full flex items-center justify-between p-4 bg-brand-neutral-50/50 active:bg-brand-neutral-50 transition-colors"
@@ -425,7 +425,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
         {/* 5. Data Management */}
         <section className="space-y-4 pt-6 border-t border-brand-neutral-200">
           <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.25em] px-1">Storage & Backup</h3>
-          <Card className="border-brand-neutral-200 rounded-2xl shadow-sm">
+          <Card className="p-0 gap-0 border-brand-neutral-200 rounded-2xl shadow-sm">
             <CardContent className="p-5 space-y-6">
               <div className="grid grid-cols-2 gap-3">
                 <Button variant="outline" onClick={handleBackup} className="h-12 rounded-xl font-black text-[10px] text-brand-neutral-700 uppercase tracking-widest shadow-sm gap-2 whitespace-normal leading-tight">

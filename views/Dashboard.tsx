@@ -65,7 +65,7 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
       </div>
 
       {isAdding && (
-        <Card className="border-brand-neutral-200 shadow-sm rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
+        <Card className="p-0 gap-0 border-brand-neutral-200 shadow-sm rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
           <CardContent className="p-0">
             <form onSubmit={handleSubmit} className="p-4 space-y-4">
               {/* Tournament Name */}
@@ -138,7 +138,7 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
           </div>
         ) : (
           events.map(event => (
-            <Card key={event.id} className="border-brand-neutral-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform flex">
+            <Card key={event.id} className="p-0 flex-row gap-0 border-brand-neutral-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform flex">
               <button onClick={() => onSelectEvent(event.id)} className="flex-1 p-4 text-left flex items-center justify-between group bg-transparent">
                 <div className="space-y-1">
                   <h3 className="font-bold text-brand-neutral-800 text-lg uppercase italic tracking-tight">{event.name}</h3>
