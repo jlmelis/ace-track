@@ -41,9 +41,10 @@ Current constraints:
    - Rationale: Non-intrusive, always visible location
    - Alternative: Settings page only - less discoverable
 
-5. **Update detection**: Enhance existing service worker with version-based cache busting
-   - Rationale: Leverages existing PWA infrastructure
-   - Alternative: Complete service worker rewrite - higher risk
+ 5. **Update detection**: Enhance existing service worker with version-based cache busting
+    - Rationale: Leverages existing PWA infrastructure
+    - Alternative: Complete service worker rewrite - higher risk
+    - Implementation note: Service worker registration is skipped in development mode (`import.meta.env.MODE === 'development'`) to prevent caching issues during development
 
 ## Risks / Trade-offs
 

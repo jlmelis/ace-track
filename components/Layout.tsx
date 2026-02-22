@@ -29,15 +29,12 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
             <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider mt-0.5">{playerName}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <VersionDisplay version={version} className="hidden sm:block" />
-          <button 
-            onClick={() => setView('settings')}
-            className={`p-2 rounded-full transition-colors ${currentView === 'settings' ? 'bg-brand-primary-50 text-brand-primary' : 'text-slate-200 active:bg-slate-100'}`}
-          >
-            <Settings size={22} />
-          </button>
-        </div>
+        <button 
+          onClick={() => setView('settings')}
+          className={`p-2 rounded-full transition-colors ${currentView === 'settings' ? 'bg-brand-primary-50 text-brand-primary' : 'text-slate-200 active:bg-slate-100'}`}
+        >
+          <Settings size={22} />
+        </button>
       </header>
 
       {/* Main Content with top offset to clear the fixed header */}
@@ -54,6 +51,9 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, playerN
             label="Home" 
             onClick={() => setView('dashboard')} 
           />
+          <div className="flex flex-col items-center justify-center">
+            <VersionDisplay version={version} className="text-center" />
+          </div>
           <NavButton 
             active={currentView === 'set'} 
             icon={<Trophy size={22} />} 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -49,8 +49,34 @@ function getPreviousVersionFromGit() {
   } catch (error) {
     // Git might not be available or repo might be shallow
     console.log('⚠️  Could not get previous version from git:', error.message);
+    return getPreviousVersionFromFileFallback();
   }
   return null;
+}
+
+function getPreviousVersionFromFileFallback() {
+  try {
+    const previousVersionPath = join(rootDir, '.previous-version');
+    if (fileExists(previousVersionPath)) {
+      const previousVersion = readFileSync(previousVersionPath, 'utf8').trim();
+      console.log(`📄 Previous version from file fallback: ${previousVersion}`);
+      return previousVersion;
+    }
+    
+    // Check dist directory for previous build artifacts
+    const distPackageJsonPath = join(rootDir, 'dist', 'package.json');
+    if (fileExists(distPackageJsonPath)) {
+      const distPackageJson = readJson(distPackageJsonPath);
+      console.log(`📦 Previous version from dist artifact: ${distPackageJson.version}`);
+      return distPackageJson.version;
+    }
+    
+    console.log('⚠️  No previous version found in file fallback');
+    return null;
+  } catch (error) {
+    console.log('⚠️  File fallback failed:', error.message);
+    return null;
+  }
 }
 
 function checkFileConsistency(currentVersion) {
@@ -84,6 +110,16 @@ function checkFileConsistency(currentVersion) {
   return errors;
 }
 
+function saveCurrentVersionForFallback(currentVersion) {
+  try {
+    const previousVersionPath = join(rootDir, '.previous-version');
+    writeFileSync(previousVersionPath, currentVersion);
+    console.log(`💾 Saved current version for future fallback: ${currentVersion}`);
+  } catch (error) {
+    console.log('⚠️  Could not save version for fallback:', error.message);
+  }
+}
+
 function validateVersion() {
   try {
     console.log('🔍 Starting version validation...');
@@ -102,7 +138,7 @@ function validateVersion() {
     const previousVersion = getPreviousVersionFromGit();
     
     if (previousVersion) {
-      console.log(`📜 Previous version from git: ${previousVersion}`);
+      console.log(`📜 Previous version: ${previousVersion}`);
       
       // Parse versions
       const [currentMajor, currentMinor, currentPatch] = currentVersion.split('.').map(Number);
@@ -146,6 +182,10 @@ function validateVersion() {
     }
     
     console.log('✅ All versioned files are consistent');
+    
+    // Save current version for future fallback
+    saveCurrentVersionForFallback(currentVersion);
+    
     console.log('🎉 Version validation passed!');
     return true;
     

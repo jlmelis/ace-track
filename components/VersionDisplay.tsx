@@ -6,13 +6,16 @@ interface VersionDisplayProps {
 }
 
 const VersionDisplay: React.FC<VersionDisplayProps> = ({ version, className = '' }) => {
-  // If version is not provided, try to get it from the global VERSION constant
-  const displayVersion = version || (typeof window !== 'undefined' ? (window as any).APP_VERSION : 'v?.?.?');
+  // If version is not provided, show placeholder
+  const displayVersion = version || '?.?.?';
+  
+  // Remove 'v' prefix if present for consistent display
+  const versionNumber = displayVersion.startsWith('v') ? displayVersion.substring(1) : displayVersion;
   
   return (
     <div className={`text-center ${className}`}>
-      <span className="text-[9px] text-brand-primary-200 uppercase tracking-[0.2em] font-bold">
-        AceTrack {displayVersion}
+      <span className="text-[8px] text-slate-400 uppercase tracking-[0.1em]">
+        v{versionNumber}
       </span>
     </div>
   );
