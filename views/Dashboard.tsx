@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Plus, Trophy, MapPin, ChevronRight, Trash2, Calendar } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Card, CardContent } from '../components/ui/card';
 import { Event } from '../types';
 
 interface DashboardProps {
@@ -13,7 +16,7 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newLoc, setNewLoc] = useState('');
-  
+
   const getLocalDate = () => {
     const now = new Date();
     const year = now.getFullYear();
@@ -52,70 +55,75 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
     <div className="p-4 space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-brand-neutral-800 uppercase tracking-tight italic">Tournaments</h2>
-        <button 
+        <Button
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-brand-primary-900 text-white p-2 rounded-full shadow-lg active:scale-95 transition-transform"
+          size="icon"
+          className="rounded-full shadow-lg active:scale-95 transition-transform"
         >
           <Plus size={24} strokeWidth={2.5} />
-        </button>
+        </Button>
       </div>
 
       {isAdding && (
-        <form onSubmit={handleSubmit} className="bg-white border border-brand-neutral-200 rounded-xl p-4 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
-          {/* Tournament Name */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-brand-primary-700 uppercase tracking-wider ml-1">Tournament Name</label>
-            <input 
-              autoFocus required
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              className="w-full bg-brand-neutral-50 border-0 rounded-lg p-3 outline-none ring-1 ring-brand-neutral-200 focus:ring-2 focus:ring-brand-primary-900 transition-all"
-              placeholder="e.g. State Championship"
-            />
-          </div>
+        <Card className="p-0 gap-0 border-brand-neutral-200 shadow-sm rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
+          <CardContent className="p-0">
+            <form onSubmit={handleSubmit} className="p-4 space-y-4">
+              {/* Tournament Name */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-brand-primary-700 uppercase tracking-wider ml-1">Tournament Name</label>
+                <Input
+                  autoFocus required
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="w-full bg-brand-neutral-50 h-10 border-0 rounded-lg outline-none ring-1 ring-brand-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary-900 transition-all"
+                  placeholder="e.g. State Championship"
+                />
+              </div>
 
-          {/* Location */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-brand-primary-700 uppercase tracking-wider ml-1">Location</label>
-            <input 
-              value={newLoc}
-              onChange={(e) => setNewLoc(e.target.value)}
-              className="w-full bg-brand-neutral-50 border-0 rounded-lg p-3 outline-none ring-1 ring-brand-neutral-200 focus:ring-2 focus:ring-brand-primary-900 transition-all"
-              placeholder="e.g. City Arena"
-            />
-          </div>
+              {/* Location */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-brand-primary-700 uppercase tracking-wider ml-1">Location</label>
+                <Input
+                  value={newLoc}
+                  onChange={(e) => setNewLoc(e.target.value)}
+                  className="w-full bg-brand-neutral-50 h-10 border-0 rounded-lg outline-none ring-1 ring-brand-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary-900 transition-all"
+                  placeholder="e.g. City Arena"
+                />
+              </div>
 
-          {/* Date Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-brand-primary-700 uppercase tracking-wider ml-1">Start Date</label>
-              <input 
-                type="date" required
-                value={newDate}
-                onChange={(e) => setNewDate(e.target.value)}
-                className="w-full bg-brand-neutral-50 border-0 rounded-lg p-3 outline-none ring-1 ring-brand-neutral-200 focus:ring-2 focus:ring-brand-primary-900 transition-all"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-brand-primary-700 uppercase tracking-wider ml-1">End Date (Opt)</label>
-              <input 
-                type="date"
-                value={newEndDate}
-                onChange={(e) => setNewEndDate(e.target.value)}
-                className="w-full bg-brand-neutral-50 border-0 rounded-lg p-3 outline-none ring-1 ring-brand-neutral-200 focus:ring-2 focus:ring-brand-primary-900 transition-all"
-              />
-            </div>
-          </div>
+              {/* Date Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-brand-primary-700 uppercase tracking-wider ml-1">Start Date</label>
+                  <Input
+                    type="date" required
+                    value={newDate}
+                    onChange={(e) => setNewDate(e.target.value)}
+                    className="w-full bg-brand-neutral-50 h-10 border-0 rounded-lg outline-none ring-1 ring-brand-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary-900 transition-all font-sans"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-brand-primary-700 uppercase tracking-wider ml-1">End Date (Opt)</label>
+                  <Input
+                    type="date"
+                    value={newEndDate}
+                    onChange={(e) => setNewEndDate(e.target.value)}
+                    className="w-full bg-brand-neutral-50 h-10 border-0 rounded-lg outline-none ring-1 ring-brand-neutral-200 focus-visible:ring-2 focus-visible:ring-brand-primary-900 transition-all font-sans"
+                  />
+                </div>
+              </div>
 
-          <div className="flex gap-2 pt-2">
-            <button type="submit" className="flex-1 bg-brand-primary-900 text-white font-bold py-3 rounded-lg shadow-md active:bg-black transition-colors uppercase tracking-widest text-xs italic">
-              Add Tournament
-            </button>
-            <button type="button" onClick={() => setIsAdding(false)} className="px-4 text-brand-neutral-500 font-bold text-xs uppercase tracking-widest">
-              Cancel
-            </button>
-          </div>
-        </form>
+              <div className="flex gap-2 pt-2">
+                <Button type="submit" className="flex-1 font-bold py-5 rounded-lg shadow-md uppercase tracking-widest text-xs italic">
+                  Add Tournament
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => setIsAdding(false)} className="px-4 text-brand-neutral-500 font-bold text-xs py-5 uppercase tracking-widest">
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       )}
 
       {/* List Section remains the same */}
@@ -130,30 +138,32 @@ const Dashboard: React.FC<DashboardProps> = ({ events, onAddEvent, onSelectEvent
           </div>
         ) : (
           events.map(event => (
-            <div key={event.id} className="bg-white border border-brand-neutral-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform flex">
-              <button onClick={() => onSelectEvent(event.id)} className="flex-1 p-4 text-left flex items-center justify-between group">
-                <div className="space-y-1">
-                  <h3 className="font-bold text-brand-neutral-800 text-lg uppercase italic tracking-tight">{event.name}</h3>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-neutral-500 font-medium">
-                    <span className="flex items-center gap-1">
-                      <Calendar size={14} className="text-brand-primary-600" strokeWidth={2.5} />
-                      {formatEventDate(event)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin size={14} className="text-brand-primary-400" />
-                      {event.location || 'Unknown Location'}
-                    </span>
-                    <span className="flex items-center gap-1 font-bold text-brand-primary-900 bg-brand-primary-50 px-2 py-0.5 rounded uppercase tracking-tighter">
-                      {event.matches.length} Matches
-                    </span>
+            <Card key={event.id} className="border-brand-neutral-200 rounded-xl overflow-hidden shadow-sm active:scale-[0.99] transition-transform p-0 py-0 gap-0">
+              <div className="flex w-full items-stretch">
+                <button onClick={() => onSelectEvent(event.id)} className="flex-1 p-4 text-left flex items-center justify-between group bg-transparent">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-brand-neutral-800 text-lg uppercase italic tracking-tight">{event.name}</h3>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-neutral-500 font-medium">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={14} className="text-brand-primary-600" strokeWidth={2.5} />
+                        {formatEventDate(event)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MapPin size={14} className="text-brand-primary-400" />
+                        {event.location || 'Unknown Location'}
+                      </span>
+                      <span className="flex items-center gap-1 font-bold text-brand-primary-900 bg-brand-primary-50 px-2 py-0.5 rounded uppercase tracking-tighter">
+                        {event.matches.length} Matches
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <ChevronRight className="text-brand-neutral-200 group-active:text-brand-primary-900" size={24} strokeWidth={3} />
-              </button>
-              <button onClick={() => onDeleteEvent(event.id)} className="bg-brand-neutral-50 px-4 border-l border-brand-neutral-200 text-brand-neutral-400 hover:text-red-500 transition-colors">
-                <Trash2 size={18} />
-              </button>
-            </div>
+                  <ChevronRight className="text-brand-neutral-200 group-active:text-brand-primary-900" size={24} strokeWidth={3} />
+                </button>
+                <Button variant="ghost" onClick={() => onDeleteEvent(event.id)} className="h-auto rounded-none bg-brand-neutral-50 px-4 border-l border-brand-neutral-200 text-brand-neutral-400 hover:text-red-500 hover:bg-brand-neutral-100 transition-colors">
+                  <Trash2 size={18} />
+                </Button>
+              </div>
+            </Card>
           ))
         )}
       </div>

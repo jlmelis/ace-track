@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { ArrowLeft, RotateCcw, CheckCircle2, Circle } from 'lucide-react';
 import { SetData, Match, PlayerProfile, StatDefinition, StatCategory, CATEGORY_ORDER } from '../types.ts';
+import { Button } from '../components/ui/button';
 
 interface SetTrackerProps {
   set: SetData;
@@ -14,50 +15,50 @@ interface SetTrackerProps {
 }
 
 const CATEGORY_THEMES: Record<StatCategory, { bg: string; text: string; border: string; btn: string; inactive: string }> = {
-  'Attacking': { 
-    bg: 'bg-brand-primary-900', 
-    text: 'text-brand-primary-900', 
-    border: 'border-brand-primary-100', 
+  'Attacking': {
+    bg: 'bg-brand-primary-900',
+    text: 'text-brand-primary-900',
+    border: 'border-brand-primary-100',
     btn: 'active:bg-brand-primary-50 active:border-brand-primary-900',
-    inactive: 'bg-brand-surface-attacking text-brand-primary-700 border-brand-primary-300' 
+    inactive: 'bg-brand-surface-attacking text-brand-primary-700 border-brand-primary-300'
   },
-  'Serving': { 
-    bg: 'bg-brand-accent', 
-    text: 'text-brand-accent', 
-    border: 'border-brand-accent-light', 
+  'Serving': {
+    bg: 'bg-brand-accent',
+    text: 'text-brand-accent',
+    border: 'border-brand-accent-light',
     btn: 'active:bg-brand-accent-light active:border-brand-accent',
-    inactive: 'bg-brand-surface-serving text-brand-accent border-brand-accent-200' 
+    inactive: 'bg-brand-surface-serving text-brand-accent border-brand-accent-200'
   },
-  'Defense': { 
-    bg: 'bg-brand-success', 
-    text: 'text-brand-success', 
-    border: 'border-brand-success-light', 
+  'Defense': {
+    bg: 'bg-brand-success',
+    text: 'text-brand-success',
+    border: 'border-brand-success-light',
     btn: 'active:bg-brand-success-light active:border-brand-success',
-    inactive: 'bg-brand-surface-defense text-brand-success border-brand-success-200' 
+    inactive: 'bg-brand-surface-defense text-brand-success border-brand-success-200'
   },
-  'Setting': { 
-    bg: 'bg-brand-primary-600', 
-    text: 'text-brand-primary-700', 
-    border: 'border-brand-primary-100', 
+  'Setting': {
+    bg: 'bg-brand-primary-600',
+    text: 'text-brand-primary-700',
+    border: 'border-brand-primary-100',
     btn: 'active:bg-brand-primary-50 active:border-brand-primary-600',
-    inactive: 'bg-brand-surface-setting text-brand-primary-700 border-brand-primary-200' 
+    inactive: 'bg-brand-surface-setting text-brand-primary-700 border-brand-primary-200'
   },
-  'Blocking': { 
-    bg: 'bg-brand-neutral-800', 
-    text: 'text-brand-neutral-800', 
-    border: 'border-brand-neutral-200', 
+  'Blocking': {
+    bg: 'bg-brand-neutral-800',
+    text: 'text-brand-neutral-800',
+    border: 'border-brand-neutral-200',
     btn: 'active:bg-brand-neutral-50 active:border-brand-neutral-800',
-    inactive: 'bg-brand-surface-blocking text-brand-neutral-600 border-brand-neutral-300' 
+    inactive: 'bg-brand-surface-blocking text-brand-neutral-600 border-brand-neutral-300'
   },
 };
 
-const SetTracker: React.FC<SetTrackerProps> = ({ 
-  set, 
-  match, 
-  profile, 
-  onBack, 
-  onRecord, 
-  onUndo, 
+const SetTracker: React.FC<SetTrackerProps> = ({
+  set,
+  match,
+  profile,
+  onBack,
+  onRecord,
+  onUndo,
   onToggleComplete,
   allStats
 }) => {
@@ -118,35 +119,36 @@ const SetTracker: React.FC<SetTrackerProps> = ({
       <div className="bg-white border-b-2 border-brand-neutral-200 sticky top-0 z-40">
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={onBack} className="p-1 -ml-1 text-brand-neutral-500 active:bg-brand-neutral-50 rounded-full transition-colors">
+            <Button variant="ghost" size="icon" onClick={onBack} className="text-brand-neutral-500 hover:bg-brand-neutral-50 rounded-full transition-colors">
               <ArrowLeft size={24} strokeWidth={2.5} />
-            </button>
+            </Button>
             <div>
               <h2 className="text-base font-black text-brand-neutral-800 leading-none italic uppercase tracking-tight">Set {set.setNumber}</h2>
               <p className="text-[10px] font-bold text-brand-neutral-400 mt-1 uppercase tracking-widest">vs {match.opponent}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             {set.logs.length > 0 && (
-              <button 
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={onUndo}
-                className="p-2 bg-brand-neutral-50 text-brand-neutral-500 rounded-xl active:bg-brand-primary-50 active:text-brand-primary-900 active:scale-90 transition-all border border-brand-neutral-200"
+                className="bg-brand-neutral-50 text-brand-neutral-500 rounded-xl hover:bg-brand-primary-50 hover:text-brand-primary-900 border-brand-neutral-200"
               >
                 <RotateCcw size={20} strokeWidth={2.5} />
-              </button>
+              </Button>
             )}
-            <button 
+            <Button
               onClick={onToggleComplete}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest shadow-sm border-2 ${
-                set.isCompleted 
-                ? 'bg-brand-success-light text-brand-success border-brand-success/20' 
-                : 'bg-brand-primary-900 text-white border-brand-primary-900'
-              }`}
+              className={`gap-2 h-10 rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-sm border-2 ${set.isCompleted
+                  ? 'bg-brand-success-light text-brand-success border-brand-success/20 hover:bg-brand-success-light'
+                  : 'bg-brand-primary-900 text-white border-brand-primary-900 hover:bg-brand-primary-800'
+                }`}
             >
               {set.isCompleted ? <CheckCircle2 size={14} strokeWidth={3} /> : <Circle size={14} strokeWidth={3} />}
               {set.isCompleted ? 'Done' : 'End'}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -156,14 +158,14 @@ const SetTracker: React.FC<SetTrackerProps> = ({
             const isActive = activeTab === cat;
             const theme = CATEGORY_THEMES[cat];
             const alias = profile.categoryAliases?.[cat] || cat.slice(0, 2).toUpperCase();
-            
+
             return (
               <button
                 key={cat}
                 onClick={() => setActiveTab(cat)}
                 className={`flex-1 flex flex-col items-center justify-center py-2.5 rounded-xl transition-all duration-200 border-2
-                  ${isActive 
-                    ? `${theme.bg} text-white border-transparent shadow-lg scale-105 z-10 font-black italic` 
+                  ${isActive
+                    ? `${theme.bg} text-white border-transparent shadow-lg scale-105 z-10 font-black italic`
                     : `${theme.inactive} font-bold shadow-inner opacity-90`
                   }
                 `}
@@ -179,10 +181,10 @@ const SetTracker: React.FC<SetTrackerProps> = ({
       <div className="p-4 space-y-4 pb-32">
         {categories.length === 0 ? (
           <div className="text-center py-20 px-10">
-             <p className="text-xs text-brand-neutral-400 font-bold uppercase tracking-widest leading-relaxed">
-               No stats enabled.<br/>
-               <span className="text-brand-primary-400">Configure tracking in Settings.</span>
-             </p>
+            <p className="text-xs text-brand-neutral-400 font-bold uppercase tracking-widest leading-relaxed">
+              No stats enabled.<br />
+              <span className="text-brand-primary-400">Configure tracking in Settings.</span>
+            </p>
           </div>
         ) : (
           <>
@@ -209,8 +211,8 @@ const SetTracker: React.FC<SetTrackerProps> = ({
                   disabled={set.isCompleted}
                   onClick={() => onRecord(stat.id)}
                   className={`relative flex flex-col items-center justify-center p-6 rounded-[2rem] border-2 transition-all active:scale-90
-                    ${set.isCompleted 
-                      ? 'bg-brand-neutral-50 border-brand-neutral-100 opacity-30' 
+                    ${set.isCompleted
+                      ? 'bg-brand-neutral-50 border-brand-neutral-100 opacity-30'
                       : `bg-white border-brand-neutral-200/60 shadow-md ${CATEGORY_THEMES[activeTab].btn}`
                     }
                   `}
@@ -251,8 +253,8 @@ const SetTracker: React.FC<SetTrackerProps> = ({
 
       {/* Toast Notification */}
       {toastVisible && lastStatLabel && !set.isCompleted && (
-        <div 
-          key={set.logs.length} 
+        <div
+          key={set.logs.length}
           className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-brand-neutral-800/95 backdrop-blur-md text-white px-8 py-4 rounded-full text-[11px] font-black shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-300 pointer-events-none uppercase tracking-[0.25em] border border-white/10 z-[60] italic"
         >
           +1 {lastStatLabel}
