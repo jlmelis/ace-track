@@ -82,7 +82,15 @@ Archive a completed change in the experimental workflow.
    mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
    ```
 
-6. **Display summary**
+6. **Bump the application version**
+   
+   Before finalizing, run `npm run version:bump` to increment the semantic version. This guarantees the application build scripts (like the PWA `sw.js` cache) always get fresh identifiers upon archive.
+
+   ```bash
+   npm run version:bump
+   ```
+
+7. **Display summary**
 
    Show archive completion summary including:
    - Change name
