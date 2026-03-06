@@ -14,7 +14,7 @@ context: |
 # Per-artifact rules
 # Add custom rules for specific artifacts.
 rules:
-  spec:
+  specs:
     - Prefer native browser implementations (IndexedDB, Web Workers) where applicable over third-party libraries.
     - Ensure new UI components follow the brand's Tailwind aesthetic (bold text, clean layouts).
     - Favor utilizing existing Shadcn UI components (stored in /components/ui) when available rather than creating custom generic components.

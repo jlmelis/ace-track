@@ -39,7 +39,13 @@ export const getAppState = async (): Promise<AppState | null> => {
     const store = transaction.objectStore(STORE_NAME);
     const request = store.get('current');
 
-    request.onsuccess = () => resolve(request.result || null);
+    request.onsuccess = () => {
+      const result = request.result as AppState | null;
+      if (result && result.events) {
+        result.events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      }
+      resolve(result);
+    };
     request.onerror = () => reject(request.error);
   });
 };
