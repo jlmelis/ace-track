@@ -90,7 +90,16 @@ Archive a completed change in the experimental workflow.
    npm run version:bump
    ```
 
-7. **Display summary**
+8. **Clean up temporary files**
+
+   The openspec CLI and other status commands often leave temporary `*.json` or `*.txt` output files in the root directory during the workflow. Clean these up before finishing:
+
+   ```bash
+   # Use powershell Remove-Item or equivalent to clean up:
+   Remove-Item apply_instructions.json, design.json, instructions.json, instructions.txt, proposal_instructions.json, specs.json, status.json, status2.json, status_apply.json, tasks.json, verify.json, openspec-instructions.json -ErrorAction SilentlyContinue 
+   ```
+
+9. **Display summary**
 
    Show archive completion summary including:
    - Change name

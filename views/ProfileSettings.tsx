@@ -21,6 +21,7 @@ import {
   Fence
 } from 'lucide-react';
 import { PlayerProfile, DEFAULT_STATS, StatCategory, DEFAULT_ALIASES, CATEGORY_ORDER, StatDefinition } from '../types';
+import { exportData, restoreBackup, parseEventsCsv, importEventsFromCsv } from '../db';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent } from '../components/ui/card';
@@ -57,7 +58,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
   const [newStatLabel, setNewStatLabel] = useState('');
   const [newStatCat, setNewStatCat] = useState<StatCategory>(CATEGORY_ORDER[0]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const restoreFileInputRef = useRef<HTMLInputElement>(null);
+  const importCsvInputRef = useRef<HTMLInputElement>(null);
 
   const allStatsCombined = useMemo(() => [...DEFAULT_STATS, ...customStats], [customStats]);
 
@@ -154,39 +156,69 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
     }
   };
 
-  const handleBackup = () => {
-    const fullData = {
-      profile: localProfile,
-      events: [],
-      customStats: customStats
-    };
-    const blob = new Blob([JSON.stringify(fullData)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `AceTrack_Backup_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const handleBackup = async () => {
+    try {
+      const jsonData = await exportData();
+      const blob = new Blob([jsonData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `AceTrack_Backup_${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("Error generating backup: " + (err instanceof Error ? err.message : String(err)));
+    }
   };
 
-  const handleRestoreClick = () => fileInputRef.current?.click();
+  const handleRestoreClick = () => restoreFileInputRef.current?.click();
+  const handleImportCsvClick = () => importCsvInputRef.current?.click();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRestoreFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
-        const json = JSON.parse(event.target?.result as string);
-        if (json.profile) {
-          if (window.confirm("Restore this backup? This will overwrite your current database.")) {
-            localStorage.setItem('acetrack_v1_data', JSON.stringify(json));
-            window.location.reload();
-          }
-        } else alert("Invalid backup file format.");
-      } catch (err) { alert("Error reading backup file."); }
+        const jsonData = event.target?.result as string;
+        if (window.confirm("Restore this backup? This will ATOMICALLY OVERWRITE your current database matching the backup exactly.")) {
+          await restoreBackup(jsonData);
+          alert("Restore successful! Reloading application...");
+          window.location.reload();
+        }
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Error reading backup file.");
+      }
     };
     reader.readAsText(file);
+    // Reset file input
+    if (restoreFileInputRef.current) restoreFileInputRef.current.value = '';
+  };
+
+  const handleCsvImportChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const csvText = event.target?.result as string;
+        const events = parseEventsCsv(csvText, file.name);
+        if (events.length === 0) {
+          alert("No valid events found in this CSV.");
+          return;
+        }
+        if (window.confirm(`Imported ${events.length} event(s) with ${events.reduce((c, e) => c + e.matches.length, 0)} match(es) from CSV. Proceed?`)) {
+          const count = await importEventsFromCsv(events);
+          alert(`Successfully imported/updated ${count} event(s). Reloading...`);
+          window.location.reload();
+        }
+      } catch (err) {
+        alert("Failed to parse CSV: " + (err instanceof Error ? err.message : String(err)));
+      }
+    };
+    reader.readAsText(file);
+    // Reset file input
+    if (importCsvInputRef.current) importCsvInputRef.current.value = '';
   };
 
   return (
@@ -427,16 +459,21 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
           <h3 className="text-[10px] font-black text-brand-neutral-400 uppercase tracking-[0.25em] px-1">Storage & Backup</h3>
           <Card className="p-0 gap-0 border-brand-neutral-200 rounded-2xl shadow-sm">
             <CardContent className="p-5 space-y-6">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Button variant="outline" onClick={handleBackup} className="h-12 rounded-xl font-black text-[10px] text-brand-neutral-700 uppercase tracking-widest shadow-sm gap-2 whitespace-normal leading-tight">
                   <Download size={16} className="text-brand-primary-600" strokeWidth={2.5} />
-                  Backup
+                  Backup (JSON)
                 </Button>
                 <Button variant="outline" onClick={handleRestoreClick} className="h-12 rounded-xl font-black text-[10px] text-brand-neutral-700 uppercase tracking-widest shadow-sm gap-2 whitespace-normal leading-tight">
                   <Upload size={16} className="text-brand-primary-600" strokeWidth={2.5} />
-                  Restore
+                  Restore (JSON)
                 </Button>
-                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".json" />
+                <Button variant="outline" onClick={handleImportCsvClick} className="h-12 rounded-xl font-black text-[10px] border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 uppercase tracking-widest shadow-sm gap-2 whitespace-normal leading-tight">
+                  <Upload size={16} className="text-emerald-600" strokeWidth={2.5} />
+                  Import CSV (Events)
+                </Button>
+                <input type="file" ref={restoreFileInputRef} onChange={handleRestoreFileChange} className="hidden" accept=".json" />
+                <input type="file" ref={importCsvInputRef} onChange={handleCsvImportChange} className="hidden" accept=".csv" />
               </div>
               <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
                 <AlertTriangle size={18} className="text-amber-600 shrink-0" />
