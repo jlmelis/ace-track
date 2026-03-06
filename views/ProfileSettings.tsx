@@ -515,7 +515,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
             <div className="flex items-center gap-4 text-white relative z-10">
               <div className="bg-white/10 text-brand-primary-400 p-3 rounded-xl backdrop-blur-sm border border-white/5"><Database size={20} /></div>
               <div>
-                <h4 className="text-xs font-black uppercase italic tracking-wider">AceTrack v1.0.11</h4>
+                <h4 className="text-xs font-black uppercase italic tracking-wider">AceTrack v1.0.12</h4>
                 <p className="text-[10px] text-brand-neutral-400 font-bold uppercase tracking-widest">IndexedDB Local Storage</p>
               </div>
             </div>
@@ -542,7 +542,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
                   Import CSV (Events)
                 </Button>
                 <input type="file" ref={restoreFileInputRef} onChange={handleRestoreFileChange} className="hidden" accept=".json" />
-                <input type="file" ref={importCsvInputRef} onChange={handleCsvImportChange} className="hidden" accept=".csv" />
+                <input type="file" ref={importCsvInputRef} onChange={handleCsvImportChange} className="hidden" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" />
               </div>
               <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
                 <AlertTriangle size={18} className="text-amber-600 shrink-0" />

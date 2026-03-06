@@ -29,22 +29,22 @@ function fileExists(path) {
 function bumpVersion() {
   try {
     console.log('🚀 Starting version bump...');
-    
+
     // Get current version from package.json
     const packageJsonPath = join(rootDir, 'package.json');
     const packageJson = readJson(packageJsonPath);
     const currentVersion = packageJson.version;
     console.log(`📦 Current version: ${currentVersion}`);
-    
+
     // Bump version using npm version patch
     console.log('⬆️  Bumping patch version...');
     execSync('npm version patch --no-git-tag-version', { stdio: 'inherit', cwd: rootDir });
-    
+
     // Read new version
     const updatedPackageJson = readJson(packageJsonPath);
     const newVersion = updatedPackageJson.version;
     console.log(`✅ New version: ${newVersion}`);
-    
+
     // Update metadata.json
     const metadataPath = join(rootDir, 'metadata.json');
     if (fileExists(metadataPath)) {
@@ -55,7 +55,7 @@ function bumpVersion() {
     } else {
       console.log('⚠️  metadata.json not found, skipping...');
     }
-    
+
     // Update App.tsx
     const appTsxPath = join(rootDir, 'App.tsx');
     let appTsx = readFileSync(appTsxPath, 'utf8');
@@ -63,7 +63,15 @@ function bumpVersion() {
     appTsx = appTsx.replace(/const VERSION = 'v[^']+';/, `const VERSION = 'v${newVersion}';`);
     writeFileSync(appTsxPath, appTsx);
     console.log(`⚛️  Updated App.tsx VERSION to v${newVersion}`);
-    
+
+    // Update ProfileSettings.tsx
+    const profileSettingsPath = join(rootDir, 'views', 'ProfileSettings.tsx');
+    let profileSettings = readFileSync(profileSettingsPath, 'utf8');
+    // Match the hardcoded version label e.g. 'AceTrack v1.0.11'
+    profileSettings = profileSettings.replace(/AceTrack v[\d.]+/, `AceTrack v${newVersion}`);
+    writeFileSync(profileSettingsPath, profileSettings);
+    console.log(`⚛️  Updated ProfileSettings.tsx version label to AceTrack v${newVersion}`);
+
     // Update service worker
     const swPath = join(rootDir, 'public', 'sw.js');
     let swContent = readFileSync(swPath, 'utf8');
@@ -71,10 +79,10 @@ function bumpVersion() {
     swContent = swContent.replace(/const CACHE_NAME = 'acetrack-v[^']+';/, `const CACHE_NAME = 'acetrack-v${newVersion}';`);
     writeFileSync(swPath, swContent);
     console.log(`🔧 Updated service worker CACHE_NAME to acetrack-v${newVersion}`);
-    
+
     console.log('🎉 Version bump complete!');
-    console.log(`📋 Files updated: package.json, metadata.json, App.tsx, public/sw.js`);
-    
+    console.log(`📋 Files updated: package.json, metadata.json, App.tsx, views/ProfileSettings.tsx, public/sw.js`);
+
   } catch (error) {
     console.error('❌ Error during version bump:', error.message);
     process.exit(1);
