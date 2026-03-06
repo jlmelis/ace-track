@@ -1,4 +1,5 @@
 import { Event, StatDefinition, TournamentStats } from '../types';
+import { toast } from "sonner";
 
 interface UseTournamentExportProps {
   event: Event;
@@ -9,10 +10,10 @@ interface UseTournamentExportProps {
 export const useTournamentExport = ({ event, allStats, tournamentTotals }: UseTournamentExportProps) => {
   const exportTournament = () => {
     const sanitize = (val: string) => `"${val.replace(/"/g, '""')}"`;
-    
+
     const headers = ['Match', 'Date', 'Set', 'Category', 'Metric', 'Timestamp'];
-    const rows = event.matches.flatMap(match => 
-      match.sets.flatMap(set => 
+    const rows = event.matches.flatMap(match =>
+      match.sets.flatMap(set =>
         set.logs.map(log => {
           const statDef = allStats.find(s => s.id === log.statId);
           return [
@@ -26,9 +27,11 @@ export const useTournamentExport = ({ event, allStats, tournamentTotals }: UseTo
         })
       )
     );
-    
+
     if (rows.length === 0) {
-      alert("No stats recorded yet for this tournament.");
+      toast.error("No stats recorded yet", {
+        description: "Cannot export an empty tournament."
+      });
       return;
     }
 
@@ -38,7 +41,7 @@ export const useTournamentExport = ({ event, allStats, tournamentTotals }: UseTo
     tournamentRows.push(['', '', '', '', '', ''].map(sanitize));
     // Add section header
     tournamentRows.push(['TOURNAMENT TOTALS', '', '', '', '', ''].map(sanitize));
-    
+
     // Add rows for each stat with non-zero total
     allStats.forEach(stat => {
       const total = tournamentTotals[stat.id] || 0;

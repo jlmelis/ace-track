@@ -18,3 +18,10 @@ All UI components, both Shadcn and custom, SHOULD utilize a utility function com
 #### Scenario: Developer overrides component styles
 - **WHEN** a developer provides custom `className` props to a component
 - **THEN** the component merges these classes correctly without Tailwind CSS specificity conflicts, resulting in the expected visual appearance.
+
+### Requirement: Use Shadcn AlertDialog over Native Dialogs
+The application MUST NOT use native `window.alert` or `window.confirm` dialogs. Where an analog exists (such as confirmation before destructive actions), the application MUST utilize the Shadcn `AlertDialog` or `Toast` components.
+
+#### Scenario: Developer implements a confirmation flow
+- **WHEN** a developer implements an action requiring user confirmation
+- **THEN** it must use the Shadcn `AlertDialog` component instead of `window.confirm`.

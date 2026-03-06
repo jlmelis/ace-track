@@ -1,0 +1,55 @@
+﻿{
+  "changeName": "update-confimation-dialogs",
+  "changeDir": "C:\\repos\\ace-track\\openspec\\changes\\update-confimation-dialogs",
+  "schemaName": "spec-driven",
+  "contextFiles": {
+    "proposal": "C:\\repos\\ace-track\\openspec\\changes\\update-confimation-dialogs\\proposal.md",
+    "specs": "C:\\repos\\ace-track\\openspec\\changes\\update-confimation-dialogs\\specs\\**\\*.md",
+    "design": "C:\\repos\\ace-track\\openspec\\changes\\update-confimation-dialogs\\design.md",
+    "tasks": "C:\\repos\\ace-track\\openspec\\changes\\update-confimation-dialogs\\tasks.md"
+  },
+  "progress": {
+    "total": 7,
+    "complete": 7,
+    "remaining": 0
+  },
+  "tasks": [
+    {
+      "id": "1",
+      "description": "1.1 Add Shadcn `AlertDialog` primitive if not already fully integrated",
+      "done": true
+    },
+    {
+      "id": "2",
+      "description": "1.2 Add Shadcn `Sonner` primitive for alerts without confirmation",
+      "done": true
+    },
+    {
+      "id": "3",
+      "description": "2.1 Refactor `views/ProfileSettings.tsx` to use `AlertDialog` instead of `window.confirm` for resetting data/profiles",
+      "done": true
+    },
+    {
+      "id": "4",
+      "description": "2.2 Refactor `App.tsx` or its children to replace generic `confirm` behavior (e.g. deleting events)",
+      "done": true
+    },
+    {
+      "id": "5",
+      "description": "2.3 Refactor `hooks/useTournamentExport.ts` to replace `window.alert` with Shadcn `Sonner` message",
+      "done": true
+    },
+    {
+      "id": "6",
+      "description": "3.1 Verify data deletion and resetting flows work correctly with the new asynchronous dialogs",
+      "done": true
+    },
+    {
+      "id": "7",
+      "description": "3.2 Verify application builds without errors (`npm run build`)",
+      "done": true
+    }
+  ],
+  "state": "all_done",
+  "instruction": "All tasks are complete! This change is ready to be archived.\nConsider running tests and reviewing the changes before archiving."
+}

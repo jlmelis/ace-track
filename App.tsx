@@ -11,6 +11,17 @@ import MatchDetail from './views/MatchDetail.tsx';
 import SetTracker from './views/SetTracker.tsx';
 import ProfileSettings from './views/ProfileSettings.tsx';
 import OnboardingModal from './components/OnboardingModal.tsx';
+import { Toaster } from './components/ui/sonner.tsx';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./components/ui/alert-dialog";
 
 const STORAGE_KEY_OLD = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
@@ -24,7 +35,7 @@ const App: React.FC = () => {
   const [activeSetId, setActiveSetId] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // PWA Update State
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
@@ -42,13 +53,27 @@ const App: React.FC = () => {
     }
   });
 
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    actionLabel?: string;
+    actionClass?: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: () => { },
+  });
+
   // Initial Load & Migration
   useEffect(() => {
     const loadData = async () => {
       try {
         const dbData = await getAppState();
         const localDataRaw = localStorage.getItem(STORAGE_KEY_OLD);
-        
+
         if (dbData) {
           setData(dbData);
           // If we have both, migration already happened, but let's clear local just in case
@@ -146,15 +171,22 @@ const App: React.FC = () => {
   };
 
   const deleteEvent = (id: string) => {
-    if (window.confirm('Delete this tournament and all its matches?')) {
-      setData(prev => ({ ...prev, events: prev.events.filter(e => e.id !== id) }));
-      if (activeEventId === id) {
-        setActiveEventId(null);
-        setActiveMatchId(null);
-        setActiveSetId(null);
-        setCurrentView('dashboard');
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Tournament",
+      description: "Delete this tournament and all its matches?",
+      actionLabel: "Delete",
+      actionClass: "bg-red-600 hover:bg-red-700 focus:ring-red-600",
+      onConfirm: () => {
+        setData(prev => ({ ...prev, events: prev.events.filter(e => e.id !== id) }));
+        if (activeEventId === id) {
+          setActiveEventId(null);
+          setActiveMatchId(null);
+          setActiveSetId(null);
+          setCurrentView('dashboard');
+        }
       }
-    }
+    });
   };
 
   const addMatch = (eventId: string, opponent: string, matchDate: string) => {
@@ -166,20 +198,27 @@ const App: React.FC = () => {
   };
 
   const deleteMatch = (eventId: string, matchId: string) => {
-    if (window.confirm('Delete this match and all its sets?')) {
-      setData(prev => ({
-        ...prev,
-        events: prev.events.map(e => e.id === eventId ? {
-          ...e,
-          matches: e.matches.filter(m => m.id !== matchId)
-        } : e)
-      }));
-      if (activeMatchId === matchId) {
-        setActiveMatchId(null);
-        setActiveSetId(null);
-        setCurrentView('event');
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Match",
+      description: "Delete this match and all its sets?",
+      actionLabel: "Delete",
+      actionClass: "bg-red-600 hover:bg-red-700 focus:ring-red-600",
+      onConfirm: () => {
+        setData(prev => ({
+          ...prev,
+          events: prev.events.map(e => e.id === eventId ? {
+            ...e,
+            matches: e.matches.filter(m => m.id !== matchId)
+          } : e)
+        }));
+        if (activeMatchId === matchId) {
+          setActiveMatchId(null);
+          setActiveSetId(null);
+          setCurrentView('event');
+        }
       }
-    }
+    });
   };
 
   const addSet = (eventId: string, matchId: string) => {
@@ -197,22 +236,29 @@ const App: React.FC = () => {
   };
 
   const deleteSet = (eventId: string, matchId: string, setId: string) => {
-    if (window.confirm('Delete this set?')) {
-      setData(prev => ({
-        ...prev,
-        events: prev.events.map(e => e.id === eventId ? {
-          ...e,
-          matches: e.matches.map(m => m.id === matchId ? {
-            ...m,
-            sets: m.sets.filter(s => s.id !== setId)
-          } : m)
-        } : e)
-      }));
-      if (activeSetId === setId) {
-        setActiveSetId(null);
-        setCurrentView('match');
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Set",
+      description: "Delete this set?",
+      actionLabel: "Delete",
+      actionClass: "bg-red-600 hover:bg-red-700 focus:ring-red-600",
+      onConfirm: () => {
+        setData(prev => ({
+          ...prev,
+          events: prev.events.map(e => e.id === eventId ? {
+            ...e,
+            matches: e.matches.map(m => m.id === matchId ? {
+              ...m,
+              sets: m.sets.filter(s => s.id !== setId)
+            } : m)
+          } : e)
+        }));
+        if (activeSetId === setId) {
+          setActiveSetId(null);
+          setCurrentView('match');
+        }
       }
-    }
+    });
   };
 
   const addCustomStat = (stat: Omit<StatDefinition, 'id' | 'enabled'>) => {
@@ -233,16 +279,23 @@ const App: React.FC = () => {
   };
 
   const deleteCustomStat = (id: string) => {
-    if (window.confirm('Delete this custom stat? This will remove it from all tracking and profile views.')) {
-      setData(prev => ({
-        ...prev,
-        customStats: prev.customStats.filter(s => s.id !== id),
-        profile: {
-          ...prev.profile,
-          trackedStats: prev.profile.trackedStats.filter(sid => sid !== id)
-        }
-      }));
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Custom Metric",
+      description: "Delete this custom stat? This will remove it from all tracking and profile views.",
+      actionLabel: "Delete",
+      actionClass: "bg-red-600 hover:bg-red-700 focus:ring-red-600",
+      onConfirm: () => {
+        setData(prev => ({
+          ...prev,
+          customStats: prev.customStats.filter(s => s.id !== id),
+          profile: {
+            ...prev.profile,
+            trackedStats: prev.profile.trackedStats.filter(sid => sid !== id)
+          }
+        }));
+      }
+    });
   };
 
   const recordStat = (statId: string) => {
@@ -318,24 +371,24 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout 
-      currentView={currentView} 
-      setView={setCurrentView} 
-      playerName={data.profile.name} 
+    <Layout
+      currentView={currentView}
+      setView={setCurrentView}
+      playerName={data.profile.name}
       hasActiveSet={!!activeSetId}
       version={VERSION}
     >
       {renderContent()}
-      
+
       {showOnboarding && <OnboardingModal onDismiss={dismissOnboarding} />}
-      
+
       {/* PWA UPDATE PROMPT - Rebranded to Deep Navy/Metallic theme */}
       {showUpdatePrompt && (
         <div className="fixed bottom-24 left-4 right-4 z-[200] animate-in slide-in-from-bottom-4 duration-500">
           <div className="bg-brand-primary-900 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 border border-white/10 relative overflow-hidden">
             {/* Visual background flourish */}
             <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
-            
+
             <div className="flex items-center gap-3 relative z-10">
               <div className="bg-white/10 p-2 rounded-xl text-brand-primary-400 animate-pulse border border-white/5">
                 <RefreshCw size={20} strokeWidth={3} />
@@ -345,24 +398,43 @@ const App: React.FC = () => {
                 <p className="text-[9px] text-brand-primary-200 mt-1 uppercase tracking-[0.2em] font-bold">AceTrack {VERSION}</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 relative z-10">
-               <button 
-                 onClick={handleUpdate} 
-                 className="bg-white text-brand-primary-900 text-[10px] font-black px-4 py-2 rounded-xl shadow-lg active:scale-95 transition-all uppercase tracking-widest italic"
-               >
-                 Reload
-               </button>
-               <button 
-                 onClick={() => setShowUpdatePrompt(false)} 
-                 className="p-1 text-brand-primary-200 hover:text-white transition-colors"
-               >
-                 <X size={20} />
-               </button>
+              <button
+                onClick={handleUpdate}
+                className="bg-white text-brand-primary-900 text-[10px] font-black px-4 py-2 rounded-xl shadow-lg active:scale-95 transition-all uppercase tracking-widest italic"
+              >
+                Reload
+              </button>
+              <button
+                onClick={() => setShowUpdatePrompt(false)}
+                className="p-1 text-brand-primary-200 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
             </div>
           </div>
         </div>
       )}
+
+      <Toaster position="bottom-center" />
+
+      <AlertDialog open={confirmDialog.isOpen} onOpenChange={(isOpen) => setConfirmDialog(prev => ({ ...prev, isOpen }))}>
+        <AlertDialogContent className="rounded-2xl border-brand-neutral-200">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-bold text-brand-neutral-800 uppercase tracking-tight">{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription className="text-brand-neutral-600 font-medium">
+              {confirmDialog.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl font-bold uppercase tracking-widest text-xs">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDialog.onConfirm} className={`rounded-xl font-bold uppercase tracking-widest text-xs ${confirmDialog.actionClass || ''}`}>
+              {confirmDialog.actionLabel || 'Confirm'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };

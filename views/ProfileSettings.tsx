@@ -23,8 +23,19 @@ import {
 import { PlayerProfile, DEFAULT_STATS, StatCategory, DEFAULT_ALIASES, CATEGORY_ORDER, StatDefinition } from '../types';
 import { exportData, restoreBackup, parseEventsCsv, importEventsFromCsv } from '../db';
 import { Button } from '../components/ui/button';
+import { toast } from 'sonner';
 import { Input } from '../components/ui/input';
 import { Card, CardContent } from '../components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
 
 interface ProfileSettingsProps {
   profile: PlayerProfile;
@@ -60,6 +71,20 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
 
   const restoreFileInputRef = useRef<HTMLInputElement>(null);
   const importCsvInputRef = useRef<HTMLInputElement>(null);
+
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    actionLabel?: string;
+    actionClass?: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: () => { },
+  });
 
   const allStatsCombined = useMemo(() => [...DEFAULT_STATS, ...customStats], [customStats]);
 
@@ -147,13 +172,20 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
   };
 
   const clearData = () => {
-    if (window.confirm("CRITICAL: This will delete ALL tournaments, matches, and stats. This cannot be undone. Are you sure?")) {
-      const request = indexedDB.deleteDatabase('AceTrackDB');
-      request.onsuccess = () => {
-        localStorage.removeItem('acetrack_onboarding_seen');
-        window.location.reload();
-      };
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: "Factory Reset App",
+      description: "CRITICAL: This will delete ALL tournaments, matches, and stats. This cannot be undone. Are you sure?",
+      actionLabel: "Reset",
+      actionClass: "bg-red-600 hover:bg-red-700 focus:ring-red-600",
+      onConfirm: () => {
+        const request = indexedDB.deleteDatabase('AceTrackDB');
+        request.onsuccess = () => {
+          localStorage.removeItem('acetrack_onboarding_seen');
+          window.location.reload();
+        };
+      }
+    });
   };
 
   const handleBackup = async () => {
@@ -167,7 +199,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      alert("Error generating backup: " + (err instanceof Error ? err.message : String(err)));
+      toast.error("Backup Failed", {
+        description: err instanceof Error ? err.message : String(err)
+      });
     }
   };
 
@@ -181,13 +215,30 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
     reader.onload = async (event) => {
       try {
         const jsonData = event.target?.result as string;
-        if (window.confirm("Restore this backup? This will ATOMICALLY OVERWRITE your current database matching the backup exactly.")) {
-          await restoreBackup(jsonData);
-          alert("Restore successful! Reloading application...");
-          window.location.reload();
-        }
+        setConfirmDialog({
+          isOpen: true,
+          title: "Restore Backup",
+          description: "This will ATOMICALLY OVERWRITE your current database matching the backup exactly. Proceed?",
+          actionLabel: "Restore",
+          actionClass: "!bg-brand-success text-white hover:!bg-brand-success/90 focus:ring-brand-success",
+          onConfirm: async () => {
+            try {
+              await restoreBackup(jsonData);
+              toast.success("Restore successful!", {
+                description: "Reloading application..."
+              });
+              setTimeout(() => window.location.reload(), 1500);
+            } catch (err) {
+              toast.error("Restore failed", {
+                description: err instanceof Error ? err.message : "Error reading backup file."
+              });
+            }
+          }
+        });
       } catch (err) {
-        alert(err instanceof Error ? err.message : "Error reading backup file.");
+        toast.error("Invalid backup", {
+          description: err instanceof Error ? err.message : "Error reading backup file."
+        });
       }
     };
     reader.readAsText(file);
@@ -204,16 +255,34 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
         const csvText = event.target?.result as string;
         const events = parseEventsCsv(csvText, file.name);
         if (events.length === 0) {
-          alert("No valid events found in this CSV.");
+          toast.error("Import failed", {
+            description: "No valid events found in this CSV."
+          });
           return;
         }
-        if (window.confirm(`Imported ${events.length} event(s) with ${events.reduce((c, e) => c + e.matches.length, 0)} match(es) from CSV. Proceed?`)) {
-          const count = await importEventsFromCsv(events);
-          alert(`Successfully imported/updated ${count} event(s). Reloading...`);
-          window.location.reload();
-        }
+        setConfirmDialog({
+          isOpen: true,
+          title: "Import CSV Data",
+          description: `Imported ${events.length} event(s) with ${events.reduce((c, e) => c + e.matches.length, 0)} match(es) from CSV. Proceed?`,
+          actionLabel: "Import",
+          onConfirm: async () => {
+            try {
+              const count = await importEventsFromCsv(events);
+              toast.success("Import successful", {
+                description: `Successfully imported/updated ${count} event(s). Reloading...`
+              });
+              setTimeout(() => window.location.reload(), 1500);
+            } catch (err) {
+              toast.error("Import failed", {
+                description: err instanceof Error ? err.message : String(err)
+              });
+            }
+          }
+        });
       } catch (err) {
-        alert("Failed to parse CSV: " + (err instanceof Error ? err.message : String(err)));
+        toast.error("Parse failed", {
+          description: err instanceof Error ? err.message : String(err)
+        });
       }
     };
     reader.readAsText(file);
@@ -468,8 +537,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
                   <Upload size={16} className="text-brand-primary-600" strokeWidth={2.5} />
                   Restore (JSON)
                 </Button>
-                <Button variant="outline" onClick={handleImportCsvClick} className="h-12 rounded-xl font-black text-[10px] border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 uppercase tracking-widest shadow-sm gap-2 whitespace-normal leading-tight">
-                  <Upload size={16} className="text-emerald-600" strokeWidth={2.5} />
+                <Button variant="outline" onClick={handleImportCsvClick} className="h-12 rounded-xl font-black text-[10px] border-brand-success-light bg-brand-success-light text-brand-success hover:bg-brand-success-light/70 uppercase tracking-widest shadow-sm gap-2 whitespace-normal leading-tight">
+                  <Upload size={16} className="text-brand-success" strokeWidth={2.5} />
                   Import CSV (Events)
                 </Button>
                 <input type="file" ref={restoreFileInputRef} onChange={handleRestoreFileChange} className="hidden" accept=".json" />
@@ -487,6 +556,22 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onSave, onBa
           </Card>
         </section>
       </div>
+      <AlertDialog open={confirmDialog.isOpen} onOpenChange={(isOpen) => setConfirmDialog(prev => ({ ...prev, isOpen }))}>
+        <AlertDialogContent className="rounded-2xl border-brand-neutral-200">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-bold text-brand-neutral-800 uppercase tracking-tight">{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription className="text-brand-neutral-600 font-medium">
+              {confirmDialog.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl font-bold uppercase tracking-widest text-xs">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDialog.onConfirm} className={`rounded-xl font-bold uppercase tracking-widest text-xs ${confirmDialog.actionClass || ''}`}>
+              {confirmDialog.actionLabel || 'Confirm'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
