@@ -25,7 +25,7 @@ import {
 
 const STORAGE_KEY_OLD = 'acetrack_v1_data';
 const ONBOARDING_KEY = 'acetrack_onboarding_seen';
-const VERSION = 'v1.0.10';
+const VERSION = 'v1.0.11';
 
 const App: React.FC = () => {
   // Navigation & UI State
